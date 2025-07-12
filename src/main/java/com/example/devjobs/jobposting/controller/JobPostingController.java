@@ -1,5 +1,6 @@
 package com.example.devjobs.jobposting.controller;
 
+import com.example.devjobs.common.ApiResponse;
 import com.example.devjobs.jobposting.dto.JobPostingRequest;
 import com.example.devjobs.jobposting.dto.JobPostingResponse;
 import com.example.devjobs.jobposting.service.JobPostingService;
@@ -23,41 +24,41 @@ public class JobPostingController {
 
     @PostMapping
     @PreAuthorize("hasRole('COMPANY')")
-    public ResponseEntity<JobPostingResponse.Detail> createJobPosting(
+    public ResponseEntity<ApiResponse<JobPostingResponse.Detail>> createJobPosting(
             @Valid @RequestBody JobPostingRequest.Create request,
             @AuthenticationPrincipal UserDetailsImpl userDetails) {
         JobPostingResponse.Detail response = jobPostingService.createJobPosting(request, userDetails.getUserId());
-        return ResponseEntity.status(HttpStatus.CREATED).body(response);
+        return ResponseEntity.status(HttpStatus.CREATED).body(ApiResponse.created(response));
     }
 
     @GetMapping("/{postId}")
-    public ResponseEntity<JobPostingResponse.Detail> getJobPosting(@PathVariable Long postId) {
+    public ResponseEntity<ApiResponse<JobPostingResponse.Detail>> getJobPosting(@PathVariable Long postId) {
         JobPostingResponse.Detail response = jobPostingService.getJobPosting(postId);
-        return ResponseEntity.ok(response);
+        return ResponseEntity.ok(ApiResponse.success(response));
     }
 
     @GetMapping
-    public ResponseEntity<Page<JobPostingResponse.Simple>> getAllJobPostings(Pageable pageable) {
+    public ResponseEntity<ApiResponse<Page<JobPostingResponse.Simple>>> getAllJobPostings(Pageable pageable) {
         Page<JobPostingResponse.Simple> response = jobPostingService.getAllJobPostings(pageable);
-        return ResponseEntity.ok(response);
+        return ResponseEntity.ok(ApiResponse.success(response));
     }
 
     @PatchMapping("/{postId}")
     @PreAuthorize("hasRole('COMPANY')")
-    public ResponseEntity<JobPostingResponse.Detail> updateJobPosting(
+    public ResponseEntity<ApiResponse<JobPostingResponse.Detail>> updateJobPosting(
             @PathVariable Long postId,
             @Valid @RequestBody JobPostingRequest.Update request,
             @AuthenticationPrincipal UserDetailsImpl userDetails) {
         JobPostingResponse.Detail response = jobPostingService.updateJobPosting(postId, request, userDetails.getUserId());
-        return ResponseEntity.ok(response);
+        return ResponseEntity.ok(ApiResponse.success(response));
     }
 
     @DeleteMapping("/{postId}")
     @PreAuthorize("hasRole('COMPANY')")
-    public ResponseEntity<Void> deleteJobPosting(
+    public ResponseEntity<ApiResponse<Void>> deleteJobPosting(
             @PathVariable Long postId,
             @AuthenticationPrincipal UserDetailsImpl userDetails) {
         jobPostingService.deleteJobPosting(postId, userDetails.getUserId());
-        return ResponseEntity.noContent().build();
+        return ResponseEntity.ok(ApiResponse.success());
     }
 }

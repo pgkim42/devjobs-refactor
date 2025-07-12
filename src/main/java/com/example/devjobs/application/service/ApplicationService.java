@@ -7,14 +7,14 @@ import com.example.devjobs.application.dto.UpdateStatusRequestDTO;
 import java.util.List;
 
 public interface ApplicationService {
+    ApplicationResponseDTO createApplication(ApplicationRequestDTO requestDTO, Long userId);
 
-    ApplicationResponseDTO createApplication(ApplicationRequestDTO requestDTO, String loginId);
+    void deleteApplication(Long applicationId, Long userId);
 
-    void deleteApplication(Long applicationId, String loginId);
+    List<ApplicationResponseDTO> getMyApplications(Long userId);
 
-    List<ApplicationResponseDTO> getMyApplications(String loginId);
+    List<ApplicationResponseDTO> getJobApplicants(Long jobPostingId, Long companyId);
 
-    List<ApplicationResponseDTO> getJobApplicants(Long jobPostingId, String loginId);
-
-    void updateApplicationStatus(Long applicationId, UpdateStatusRequestDTO requestDTO, String loginId);
+    void updateApplicationStatus(Long applicationId, UpdateStatusRequestDTO requestDTO, Long companyId);
 }
+

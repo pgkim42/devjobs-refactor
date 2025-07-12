@@ -30,7 +30,7 @@ public class AuthServiceImpl implements AuthService {
 
     @Transactional
     @Override
-    public ResponseEntity<Void> signUp(IndividualUserSignUpRequest request) {
+    public void signUp(IndividualUserSignUpRequest request) {
         if (userRepository.existsByLoginId(request.getLoginId())) {
             throw new IllegalArgumentException("이미 사용중인 아이디입니다.");
         }
@@ -55,7 +55,7 @@ public class AuthServiceImpl implements AuthService {
                 .password(passwordEncoder.encode(request.getPassword()))
                 .name(request.getName())
                 .email(request.getEmail())
-                .role("ROLE_USER")
+                .role("ROLE_INDIVIDUAL")
                 .phoneNumber(request.getPhoneNumber())
                 .address(request.getAddress())
                 .portfolioUrl(request.getPortfolioUrl())
@@ -63,12 +63,11 @@ public class AuthServiceImpl implements AuthService {
                 .build();
 
         userRepository.save(user);
-        return ResponseEntity.ok().build();
     }
 
     @Transactional
     @Override
-    public ResponseEntity<Void> signUp(CompanyUserSignUpRequest request) {
+    public void signUp(CompanyUserSignUpRequest request) {
         if (userRepository.existsByLoginId(request.getLoginId())) {
             throw new IllegalArgumentException("이미 사용중인 아이디입니다.");
         }
@@ -91,11 +90,10 @@ public class AuthServiceImpl implements AuthService {
                 .build();
 
         userRepository.save(user);
-        return ResponseEntity.ok().build();
     }
 
     @Override
-    public ResponseEntity<String> signIn(SignInRequest request) {
+    public String signIn(SignInRequest request) {
         User user = userRepository.findByLoginId(request.getLoginId())
                 .orElseThrow(() -> new IllegalArgumentException("아이디 또는 비밀번호가 일치하지 않습니다."));
 
@@ -103,7 +101,6 @@ public class AuthServiceImpl implements AuthService {
             throw new IllegalArgumentException("아이디 또는 비밀번호가 일치하지 않습니다.");
         }
 
-        String token = jwtProvider.create(user.getLoginId(), user.getRole(), user.getId());
-        return ResponseEntity.ok(token);
+        return jwtProvider.create(user.getLoginId(), user.getRole(), user.getId());
     }
 }

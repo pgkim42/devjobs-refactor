@@ -28,10 +28,9 @@ public class ApplicationServiceImpl implements ApplicationService {
 
     @Override
     @Transactional
-    public ApplicationResponseDTO createApplication(ApplicationRequestDTO requestDTO, String loginId) {
-        User user = userRepository.findByLoginId(loginId)
+    public ApplicationResponseDTO createApplication(ApplicationRequestDTO requestDTO, Long userId) {
+        IndividualUser individualUser = (IndividualUser) userRepository.findById(userId)
                 .orElseThrow(() -> new IllegalArgumentException("사용자를 찾을 수 없습니다."));
-        IndividualUser individualUser = (IndividualUser) user;
 
         JobPosting jobPosting = jobPostingRepository.findById(requestDTO.getJobPostingId())
                 .orElseThrow(() -> new IllegalArgumentException("채용 공고를 찾을 수 없습니다."));
@@ -52,13 +51,11 @@ public class ApplicationServiceImpl implements ApplicationService {
 
     @Override
     @Transactional
-    public void deleteApplication(Long applicationId, String loginId) {
-        User user = userRepository.findByLoginId(loginId)
-                .orElseThrow(() -> new IllegalArgumentException("사용자를 찾을 수 없습니다."));
+    public void deleteApplication(Long applicationId, Long userId) {
         Application application = applicationRepository.findById(applicationId)
                 .orElseThrow(() -> new IllegalArgumentException("지원 내역을 찾을 수 없습니다."));
 
-        if (!application.getIndividualUser().getId().equals(user.getId())) {
+        if (!application.getIndividualUser().getId().equals(userId)) {
             throw new SecurityException("지원자 본인만 지원을 취소할 수 있습니다.");
         }
 
@@ -67,10 +64,9 @@ public class ApplicationServiceImpl implements ApplicationService {
 
     @Override
     @Transactional(readOnly = true)
-    public List<ApplicationResponseDTO> getMyApplications(String loginId) {
-        User user = userRepository.findByLoginId(loginId)
+    public List<ApplicationResponseDTO> getMyApplications(Long userId) {
+        IndividualUser individualUser = (IndividualUser) userRepository.findById(userId)
                 .orElseThrow(() -> new IllegalArgumentException("사용자를 찾을 수 없습니다."));
-        IndividualUser individualUser = (IndividualUser) user;
         return applicationRepository.findByIndividualUser(individualUser).stream()
                 .map(ApplicationResponseDTO::fromEntity)
                 .collect(Collectors.toList());
@@ -78,13 +74,11 @@ public class ApplicationServiceImpl implements ApplicationService {
 
     @Override
     @Transactional(readOnly = true)
-    public List<ApplicationResponseDTO> getJobApplicants(Long jobPostingId, String loginId) {
-        User user = userRepository.findByLoginId(loginId)
-                .orElseThrow(() -> new IllegalArgumentException("사용자를 찾을 수 없습니다."));
+    public List<ApplicationResponseDTO> getJobApplicants(Long jobPostingId, Long companyId) {
         JobPosting jobPosting = jobPostingRepository.findById(jobPostingId)
                 .orElseThrow(() -> new IllegalArgumentException("채용 공고를 찾을 수 없습니다."));
 
-        if (!jobPosting.getCompanyUser().getId().equals(user.getId())) {
+        if (!jobPosting.getCompanyUser().getId().equals(companyId)) {
             throw new SecurityException("해당 공고의 작성자만 지원자 목록을 조회할 수 있습니다.");
         }
 
@@ -95,14 +89,12 @@ public class ApplicationServiceImpl implements ApplicationService {
 
     @Override
     @Transactional
-    public void updateApplicationStatus(Long applicationId, UpdateStatusRequestDTO requestDTO, String loginId) {
-        User user = userRepository.findByLoginId(loginId)
-                .orElseThrow(() -> new IllegalArgumentException("사용자를 찾을 수 없습니다."));
+    public void updateApplicationStatus(Long applicationId, UpdateStatusRequestDTO requestDTO, Long companyId) {
         Application application = applicationRepository.findById(applicationId)
                 .orElseThrow(() -> new IllegalArgumentException("지원 내역을 찾을 수 없습니다."));
 
         JobPosting jobPosting = application.getJobPosting();
-        if (!jobPosting.getCompanyUser().getId().equals(user.getId())) {
+        if (!jobPosting.getCompanyUser().getId().equals(companyId)) {
             throw new SecurityException("해당 공고의 작성자만 지원 상태를 변경할 수 있습니다.");
         }
 

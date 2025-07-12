@@ -4,13 +4,14 @@ import com.example.devjobs.application.dto.ApplicationRequestDTO;
 import com.example.devjobs.application.dto.ApplicationResponseDTO;
 import com.example.devjobs.application.dto.UpdateStatusRequestDTO;
 import com.example.devjobs.application.service.ApplicationService;
+import com.example.devjobs.common.ApiResponse;
+import com.example.devjobs.user.service.UserDetailsImpl;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -23,37 +24,38 @@ public class ApplicationController {
     private final ApplicationService applicationService;
 
     @PostMapping
-    @PreAuthorize("hasRole('USER')")
-    public ResponseEntity<ApplicationResponseDTO> createApplication(
+    @PreAuthorize("hasRole('INDIVIDUAL')")
+    public ResponseEntity<ApiResponse<ApplicationResponseDTO>> createApplication(
             @RequestBody @Valid ApplicationRequestDTO requestDTO,
-            @AuthenticationPrincipal UserDetails userDetails) {
-        ApplicationResponseDTO responseDTO = applicationService.createApplication(requestDTO, userDetails.getUsername());
-        return ResponseEntity.status(HttpStatus.CREATED).body(responseDTO);
+            @AuthenticationPrincipal UserDetailsImpl userDetails) {
+        ApplicationResponseDTO responseDTO = applicationService.createApplication(requestDTO, userDetails.getUserId());
+        return ResponseEntity.status(HttpStatus.CREATED).body(ApiResponse.created(responseDTO));
     }
 
     @GetMapping("/my")
-    @PreAuthorize("hasRole('USER')")
-    public ResponseEntity<List<ApplicationResponseDTO>> getMyApplications(
-            @AuthenticationPrincipal UserDetails userDetails) {
-        return ResponseEntity.ok(applicationService.getMyApplications(userDetails.getUsername()));
+    @PreAuthorize("hasRole('INDIVIDUAL')")
+    public ResponseEntity<ApiResponse<List<ApplicationResponseDTO>>> getMyApplications(
+            @AuthenticationPrincipal UserDetailsImpl userDetails) {
+        List<ApplicationResponseDTO> response = applicationService.getMyApplications(userDetails.getUserId());
+        return ResponseEntity.ok(ApiResponse.success(response));
     }
 
     @DeleteMapping("/{applicationId}")
-    @PreAuthorize("hasRole('USER')")
-    public ResponseEntity<Void> deleteApplication(
+    @PreAuthorize("hasRole('INDIVIDUAL')")
+    public ResponseEntity<ApiResponse<Void>> deleteApplication(
             @PathVariable("applicationId") Long applicationId,
-            @AuthenticationPrincipal UserDetails userDetails) {
-        applicationService.deleteApplication(applicationId, userDetails.getUsername());
-        return ResponseEntity.noContent().build();
+            @AuthenticationPrincipal UserDetailsImpl userDetails) {
+        applicationService.deleteApplication(applicationId, userDetails.getUserId());
+        return ResponseEntity.ok(ApiResponse.success());
     }
 
     @PatchMapping("/{applicationId}/status")
     @PreAuthorize("hasRole('COMPANY')")
-    public ResponseEntity<Void> updateApplicationStatus(
+    public ResponseEntity<ApiResponse<Void>> updateApplicationStatus(
             @PathVariable("applicationId") Long applicationId,
             @RequestBody @Valid UpdateStatusRequestDTO requestDTO,
-            @AuthenticationPrincipal UserDetails userDetails) {
-        applicationService.updateApplicationStatus(applicationId, requestDTO, userDetails.getUsername());
-        return ResponseEntity.ok().build();
+            @AuthenticationPrincipal UserDetailsImpl userDetails) {
+        applicationService.updateApplicationStatus(applicationId, requestDTO, userDetails.getUserId());
+        return ResponseEntity.ok(ApiResponse.success());
     }
 }
