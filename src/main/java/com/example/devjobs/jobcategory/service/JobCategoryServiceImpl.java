@@ -1,78 +1,78 @@
 package com.example.devjobs.jobcategory.service;
 
-import com.example.devjobs.jobcategory.dto.JobCategoryDTO;
+import com.example.devjobs.jobcategory.dto.JobCategoryDto;
 import com.example.devjobs.jobcategory.entity.JobCategory;
 import com.example.devjobs.jobcategory.repository.JobCategoryRepository;
 import jakarta.annotation.PostConstruct;
-import org.springframework.beans.factory.annotation.Autowired;
+import jakarta.persistence.EntityNotFoundException;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
+@Slf4j
 @Service
+@RequiredArgsConstructor
+@Transactional
 public class JobCategoryServiceImpl implements JobCategoryService {
 
-    @Autowired
-    private JobCategoryRepository repository;
+    private final JobCategoryRepository jobCategoryRepository;
 
-    // 애플리케이션 시작 시 직무 카테고리 초기화
     @PostConstruct
-    public void initJobCategory() {
-        if (repository.count() == 0) { // 데이터가 없으면 고정된 값들로 초기화
+    public void initJobCategories() {
+        if (jobCategoryRepository.count() == 0) {
             List<JobCategory> categories = Arrays.asList(
-                new JobCategory(null, "백엔드 개발자"),
-                new JobCategory(null, "프론트엔드 개발자"),
-                new JobCategory(null, "풀스택 개발자"),
-                new JobCategory(null, "데이터 과학자"),
-                new JobCategory(null, "게임 개발자"),
-                new JobCategory(null, "모바일앱 개발자"),
-                new JobCategory(null, "데브옵스 엔지니어"),
-                new JobCategory(null, "임베디드 엔지니어"),
-                new JobCategory(null, "클라우드 엔지니어"),
-                new JobCategory(null, "시큐리티 엔지니어")
+                    JobCategory.builder().categoryName("백엔드 개발자").build(),
+                    JobCategory.builder().categoryName("프론트엔드 개발자").build(),
+                    JobCategory.builder().categoryName("풀스택 개발자").build(),
+                    JobCategory.builder().categoryName("데이터 과학자").build(),
+                    JobCategory.builder().categoryName("게임 개발자").build(),
+                    JobCategory.builder().categoryName("모바일앱 개발자").build(),
+                    JobCategory.builder().categoryName("데브옵스 엔지니어").build(),
+                    JobCategory.builder().categoryName("임베디드 엔지니어").build(),
+                    JobCategory.builder().categoryName("클라우드 엔지니어").build(),
+                    JobCategory.builder().categoryName("시큐리티 엔지니어").build()
             );
-            repository.saveAll(categories);
-            System.out.println("직무 카테고리 초기화 완료");
+            jobCategoryRepository.saveAll(categories);
+            log.info("Initialized {} job categories.", categories.size());
         }
     }
 
-
     @Override
-    public int register(JobCategoryDTO dto) {
-
-        JobCategory entity = dtoToEntity(dto);
-
-        repository.save(entity);
-
-        return entity.getCategoryCode();
+    public JobCategoryDto.Response createCategory(JobCategoryDto.Request request) {
+        JobCategory jobCategory = JobCategory.builder()
+                .categoryName(request.getCategoryName())
+                .build();
+        JobCategory savedCategory = jobCategoryRepository.save(jobCategory);
+        return JobCategoryDto.Response.from(savedCategory);
     }
 
     @Override
-    public List<JobCategoryDTO> getList() {
-        List<JobCategory> entityList = repository.findAll();
-        List<JobCategoryDTO> dtoList = entityList.stream()
-                .map(entity -> entityToDto(entity))
+    @Transactional(readOnly = true)
+    public List<JobCategoryDto.Response> getAllCategories() {
+        return jobCategoryRepository.findAll().stream()
+                .map(JobCategoryDto.Response::from)
                 .collect(Collectors.toList());
-        return dtoList;
     }
 
     @Override
-    public void modify(JobCategoryDTO dto) {
-        Optional<JobCategory> result = repository.findById(dto.getCategoryCode());
-        if (result.isPresent()) {
-            JobCategory entity = result.get();
-            entity.setCategoryName(dto.getCategoryName());
-            repository.save(entity);
+    public JobCategoryDto.Response updateCategory(Long categoryId, JobCategoryDto.Request request) {
+        JobCategory jobCategory = jobCategoryRepository.findById(categoryId)
+                .orElseThrow(() -> new EntityNotFoundException("Category not found with id: " + categoryId));
+        jobCategory.updateCategoryName(request.getCategoryName());
+        JobCategory updatedCategory = jobCategoryRepository.save(jobCategory);
+        return JobCategoryDto.Response.from(updatedCategory);
+    }
+
+    @Override
+    public void deleteCategory(Long categoryId) {
+        if (!jobCategoryRepository.existsById(categoryId)) {
+            throw new EntityNotFoundException("Category not found with id: " + categoryId);
         }
+        jobCategoryRepository.deleteById(categoryId);
     }
-
-    @Override
-    public void remove(int code) {
-        repository.deleteById(code);
-    }
-
 }
