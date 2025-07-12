@@ -13,7 +13,7 @@ import org.springframework.http.ResponseEntity;
 @Service
 public class KakaoMapService {
 
-    @Value("${KAKAO_API_KEY}")
+    @Value("${kakao.api.key}")
     private String kakaoApiKey;
 
     private static final String KAKAO_API_URL = "https://dapi.kakao.com/v2/local/search/address.json";

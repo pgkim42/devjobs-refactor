@@ -16,7 +16,7 @@ import java.util.Date;
 @Component
 public class JwtProvider {
 
-    @Value("${SECRET_KEY}")
+    @Value("${jwt.secret}")
     private String secretKey;
 
     public String create(String loginId, String role, Long userId) {
