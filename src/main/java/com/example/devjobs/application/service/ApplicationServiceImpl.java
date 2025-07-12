@@ -33,7 +33,7 @@ public class ApplicationServiceImpl implements ApplicationService {
                 .orElseThrow(() -> new IllegalArgumentException("사용자를 찾을 수 없습니다."));
         IndividualUser individualUser = (IndividualUser) user;
 
-        JobPosting jobPosting = jobPostingRepository.findById(requestDTO.getJobPostingId().intValue())
+        JobPosting jobPosting = jobPostingRepository.findById(requestDTO.getJobPostingId())
                 .orElseThrow(() -> new IllegalArgumentException("채용 공고를 찾을 수 없습니다."));
 
         if (applicationRepository.findByJobPostingAndIndividualUser(jobPosting, individualUser).isPresent()) {
@@ -81,14 +81,14 @@ public class ApplicationServiceImpl implements ApplicationService {
     public List<ApplicationResponseDTO> getJobApplicants(Long jobPostingId, String loginId) {
         User user = userRepository.findByLoginId(loginId)
                 .orElseThrow(() -> new IllegalArgumentException("사용자를 찾을 수 없습니다."));
-        JobPosting jobPosting = jobPostingRepository.findById(jobPostingId.intValue())
+        JobPosting jobPosting = jobPostingRepository.findById(jobPostingId)
                 .orElseThrow(() -> new IllegalArgumentException("채용 공고를 찾을 수 없습니다."));
 
         if (!jobPosting.getCompanyUser().getId().equals(user.getId())) {
             throw new SecurityException("해당 공고의 작성자만 지원자 목록을 조회할 수 있습니다.");
         }
 
-        return jobPosting.getApplications().stream()
+        return applicationRepository.findByJobPosting(jobPosting).stream()
                 .map(ApplicationResponseDTO::fromEntity)
                 .collect(Collectors.toList());
     }

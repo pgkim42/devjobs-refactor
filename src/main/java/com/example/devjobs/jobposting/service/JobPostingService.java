@@ -1,26 +1,19 @@
 package com.example.devjobs.jobposting.service;
 
-import com.example.devjobs.jobposting.dto.JobPostingDTO;
-import org.springframework.web.multipart.MultipartFile;
-
-import java.time.LocalDateTime;
-import java.util.List;
+import com.example.devjobs.jobposting.dto.JobPostingRequest;
+import com.example.devjobs.jobposting.dto.JobPostingResponse;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 public interface JobPostingService {
 
-    int register(JobPostingDTO dto, MultipartFile uploadFile);
+    JobPostingResponse.Detail createJobPosting(JobPostingRequest.Create request, Long companyUserId);
 
-    List<JobPostingDTO> getList();
+    JobPostingResponse.Detail getJobPosting(Long postId);
 
-    JobPostingDTO read(Integer jobCode);
+    Page<JobPostingResponse.Simple> getAllJobPostings(Pageable pageable);
 
-    void remove(Integer jobCode);
+    JobPostingResponse.Detail updateJobPosting(Long postId, JobPostingRequest.Update request, Long companyUserId);
 
-    List<String> getCompanyNamesFromJobPostings();
-
-    long countAllJobPostings();
-
-    long countActiveJobPostings();
-
-    void modify(Integer jobCode, JobPostingDTO dto, MultipartFile uploadFile);
+    void deleteJobPosting(Long postId, Long companyUserId);
 }

@@ -19,10 +19,6 @@ public class UserDetailsServiceImpl implements UserDetailsService {
         com.example.devjobs.user.entity.User user = userRepository.findByLoginId(username)
                 .orElseThrow(() -> new UsernameNotFoundException("사용자를 찾을 수 없습니다: " + username));
 
-        return User.builder()
-                .username(user.getLoginId())
-                .password(user.getPassword())
-                .roles(user.getRole().replace("ROLE_", ""))
-                .build();
+        return UserDetailsImpl.from(user);
     }
 }

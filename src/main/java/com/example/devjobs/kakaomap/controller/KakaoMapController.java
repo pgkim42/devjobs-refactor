@@ -21,20 +21,20 @@ public class KakaoMapController {
     private final KakaoMapService kakaoMapService;
     private final JobPostingRepository jobPostingRepository;
 
-    @GetMapping("/coordinates/{jobCode}")
-    public ResponseEntity<?> getCoordinatesForJobPosting(@PathVariable Integer jobCode) {
-        Optional<JobPosting> jobPostingOptional = jobPostingRepository.findById(jobCode);
+    @GetMapping("/coordinates/{jobId}")
+    public ResponseEntity<?> getCoordinatesForJobPosting(@PathVariable Long jobId) {
+        Optional<JobPosting> jobPostingOptional = jobPostingRepository.findById(jobId);
         if (jobPostingOptional.isEmpty()) {
             return ResponseEntity.badRequest().body("구인공고를 찾을 수 없습니다.");
         }
 
         JobPosting jobPosting = jobPostingOptional.get();
-        if (jobPosting.getAddress() == null || jobPosting.getAddress().isEmpty()) {
+        if (jobPosting.getWorkLocation() == null || jobPosting.getWorkLocation().isEmpty()) {
             return ResponseEntity.badRequest().body("구인공고에 등록된 주소를 찾을 수 없습니다");
         }
 
         try {
-            String coordinatesJson = kakaoMapService.getCoordinates(jobPosting.getAddress());
+            String coordinatesJson = kakaoMapService.getCoordinates(jobPosting.getWorkLocation());
             ObjectMapper objectMapper = new ObjectMapper();
             Object json = objectMapper.readValue(coordinatesJson, Object.class);
             return ResponseEntity.ok(json);

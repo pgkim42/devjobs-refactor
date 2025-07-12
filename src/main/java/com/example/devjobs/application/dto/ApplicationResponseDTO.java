@@ -11,7 +11,7 @@ import java.time.LocalDateTime;
 @Builder
 public class ApplicationResponseDTO {
     private Long applicationId;
-    private Integer jobPostingId;
+    private Long jobPostingId;
     private String jobPostingTitle;
     private Long applicantId;
     private String applicantName;
@@ -21,10 +21,10 @@ public class ApplicationResponseDTO {
     public static ApplicationResponseDTO fromEntity(Application application) {
         return ApplicationResponseDTO.builder()
                 .applicationId(application.getId())
-                .jobPostingId(application.getJobPosting().getJobCode())
+                .jobPostingId(application.getJobPosting().getId())
                 .jobPostingTitle(application.getJobPosting().getTitle())
                 .applicantId(application.getIndividualUser().getId())
-                .applicantName(application.getIndividualUser().getName())
+                .applicantName(application.getIndividualUser().getName()) // IndividualUser inherits getName() from User
                 .status(application.getStatus())
                 .appliedAt(application.getCreateDate())
                 .build();

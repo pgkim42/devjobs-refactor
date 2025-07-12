@@ -3,6 +3,7 @@ package com.example.devjobs.application.controller;
 import com.example.devjobs.application.dto.ApplicationRequestDTO;
 import com.example.devjobs.jobposting.entity.JobPosting;
 import com.example.devjobs.jobposting.repository.JobPostingRepository;
+import com.example.devjobs.user.entity.CompanyUser;
 import com.example.devjobs.user.entity.IndividualUser;
 import com.example.devjobs.user.repository.UserRepository;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -45,10 +46,11 @@ class ApplicationControllerTest {
     private PasswordEncoder passwordEncoder;
 
     private JobPosting testJobPosting;
+    private CompanyUser testCompany;
 
     @BeforeEach
     void setUp() {
-        // 테스트용 유저 저장
+        // 테스트용 개인 유저 저장
         IndividualUser user = IndividualUser.builder()
                 .loginId("testUser")
                 .password(passwordEncoder.encode("password"))
@@ -58,18 +60,27 @@ class ApplicationControllerTest {
                 .build();
         userRepository.save(user);
 
+        // 테스트용 기업 유저 저장
+        testCompany = CompanyUser.builder()
+                .loginId("testCompany")
+                .password(passwordEncoder.encode("password"))
+                .name("testCompany")
+                .email("company@test.com")
+                .role("ROLE_COMPANY")
+                .companyName("Test Company")
+                .companyAddress("Test Address")
+                .companyCode("123-45-67890")
+                .ceoName("Test CEO")
+                .build();
+        userRepository.save(testCompany);
+
         // 테스트용 채용공고 저장
         testJobPosting = JobPosting.builder()
+                .companyUser(testCompany)
                 .title("Test Job")
                 .content("Test Content")
-                .recruitJob("Backend")
-                .recruitField(1)
-                .postingDeadline(java.time.LocalDateTime.now().plusDays(10))
-                .postingStatus(true)
-                .workExperience(0)
-                .jobCategory("IT")
-                .skill("Java,Spring")
-                .address("Test Address")
+                .workLocation("Test Location")
+                .deadline(java.time.LocalDate.now().plusDays(10))
                 .build();
         jobPostingRepository.save(testJobPosting);
     }
@@ -80,7 +91,7 @@ class ApplicationControllerTest {
     void createApplication_success() throws Exception {
         // given
         ApplicationRequestDTO requestDTO = new ApplicationRequestDTO();
-        requestDTO.setJobPostingId((long) testJobPosting.getJobCode());
+        requestDTO.setJobPostingId(testJobPosting.getId());
 
         // when & then
         mockMvc.perform(post("/api/applications")
@@ -88,7 +99,7 @@ class ApplicationControllerTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(requestDTO)))
                 .andExpect(status().isCreated())
-                .andExpect(jsonPath("$.jobPostingId").value(testJobPosting.getJobCode()));
+                .andExpect(jsonPath("$.jobPostingId").value(testJobPosting.getId()));
     }
 }
 

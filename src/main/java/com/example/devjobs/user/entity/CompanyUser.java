@@ -30,6 +30,9 @@ public class CompanyUser extends User {
     @Column(nullable = false)
     private String ceoName;
 
+    @Column
+    private String industry;
+
     private String companyWebsite;
 
     private String logoUrl;

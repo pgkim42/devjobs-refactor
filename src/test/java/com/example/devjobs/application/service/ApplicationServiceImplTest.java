@@ -50,7 +50,7 @@ class ApplicationServiceImplTest {
     void setUp() {
         testUser = IndividualUser.builder().id(1L).loginId(testUserLoginId).name("testUser").build();
         testCompany = CompanyUser.builder().id(2L).companyName("testCompany").build();
-        testJobPosting = JobPosting.builder().jobCode(101).companyUser(testCompany).title("Backend Developer").build();
+        testJobPosting = JobPosting.builder().id(101L).companyUser(testCompany).title("Backend Developer").build();
         testApplication = Application.builder()
                 .id(1L)
                 .individualUser(testUser)
@@ -67,7 +67,7 @@ class ApplicationServiceImplTest {
         requestDTO.setJobPostingId(101L);
 
         when(userRepository.findByLoginId(testUserLoginId)).thenReturn(Optional.of(testUser));
-        when(jobPostingRepository.findById(101)).thenReturn(Optional.of(testJobPosting));
+        when(jobPostingRepository.findById(101L)).thenReturn(Optional.of(testJobPosting));
         when(applicationRepository.findByJobPostingAndIndividualUser(any(), any())).thenReturn(Optional.empty());
         when(applicationRepository.save(any(Application.class))).thenReturn(testApplication);
 
@@ -89,7 +89,7 @@ class ApplicationServiceImplTest {
         requestDTO.setJobPostingId(101L);
 
         when(userRepository.findByLoginId(testUserLoginId)).thenReturn(Optional.of(testUser));
-        when(jobPostingRepository.findById(101)).thenReturn(Optional.of(testJobPosting));
+        when(jobPostingRepository.findById(101L)).thenReturn(Optional.of(testJobPosting));
         when(applicationRepository.findByJobPostingAndIndividualUser(testJobPosting, testUser)).thenReturn(Optional.of(testApplication));
 
         // when & then
