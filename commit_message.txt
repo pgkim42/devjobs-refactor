@@ -1,0 +1,8 @@
+refactor: 직무 카테고리(JobCategory) 기능 현대화
+
+기존 `jobcategory` 패키지를 최신 프로젝트 표준에 맞춰 전면 리팩토링했습니다.
+
+- **API 표준 준수:** API 경로를 RESTful하게 변경하고(`api/job-categories`), 모든 응답을 `ApiResponse` 래퍼로 감싸 일관성을 확보했습니다.
+- **보안 강화:** 관리자(ADMIN)만 CUD 작업을 수행할 수 있도록 `@PreAuthorize`를 적용했습니다.
+- **코드 품질 개선:** 생성자 기반 의존성 주입, `Long` 타입 ID 사용, DTO 분리, 명시적 update 메서드 사용 등 최신 개발 관행을 적용했습니다.
+- **로깅 개선:** `System.out.println`을 SLF4J 로거로 대체했습니다.
