@@ -1,0 +1,67 @@
+package com.example.devjobs.user.config;
+
+import com.example.devjobs.user.provider.JwtProvider;
+import jakarta.servlet.FilterChain;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import lombok.RequiredArgsConstructor;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.authority.AuthorityUtils;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.stereotype.Component;
+import org.springframework.web.filter.OncePerRequestFilter;
+
+import java.io.IOException;
+
+@Component
+@RequiredArgsConstructor
+public class JwtAuthenticationFilter extends OncePerRequestFilter {
+
+    private final JwtProvider jwtProvider;
+
+    @Override
+    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
+            throws ServletException, IOException {
+
+        String path = request.getRequestURI();
+        if (path.startsWith("/api/auth/") || path.startsWith("/oauth2/")) {
+            filterChain.doFilter(request, response);
+            return;
+        }
+
+        try {
+            String token = parseBearerToken(request);
+            if (token == null) {
+                filterChain.doFilter(request, response);
+                return;
+            }
+
+            var claims = jwtProvider.validate(token);
+            if (claims == null) {
+                filterChain.doFilter(request, response);
+                return;
+            }
+
+            String loginId = claims.getSubject();
+            String role = (String) claims.get("role");
+
+            var authorities = AuthorityUtils.createAuthorityList(role);
+            var authentication = new UsernamePasswordAuthenticationToken(loginId, null, authorities);
+            SecurityContextHolder.getContext().setAuthentication(authentication);
+
+        } catch (Exception exception) {
+            exception.printStackTrace();
+        }
+
+        filterChain.doFilter(request, response);
+    }
+
+    private String parseBearerToken(HttpServletRequest request) {
+        String authorization = request.getHeader("Authorization");
+        if (authorization == null || !authorization.startsWith("Bearer ")) {
+            return null;
+        }
+        return authorization.substring(7);
+    }
+}

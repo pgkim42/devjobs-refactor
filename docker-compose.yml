@@ -1,0 +1,24 @@
+version: '3.8'
+
+services:
+  db:
+    image: mariadb:11
+    container_name: devjobs-db-local
+    restart: always
+    environment:
+      - MARIADB_ROOT_PASSWORD=rootpassword
+      - MARIADB_DATABASE=devjobs
+      - MARIADB_USER=devuser
+      - MARIADB_PASSWORD=devpass
+    volumes:
+      - db-data:/var/lib/mysql
+    ports:
+      - "3307:3306"
+    networks:
+      - devjobs-network
+
+volumes:
+  db-data:
+
+networks:
+  devjobs-network:
