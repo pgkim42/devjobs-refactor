@@ -1,8 +1,6 @@
 package com.example.devjobs.application.service;
 
-import com.example.devjobs.application.dto.ApplicationRequestDTO;
-import com.example.devjobs.application.dto.ApplicationResponseDTO;
-import com.example.devjobs.application.dto.UpdateStatusRequestDTO;
+import com.example.devjobs.application.dto.*;
 
 import java.util.List;
 
@@ -11,10 +9,15 @@ public interface ApplicationService {
 
     void deleteApplication(Long applicationId, Long userId);
 
-    List<ApplicationResponseDTO> getMyApplications(Long userId);
+    List<ApplicationForIndividualResponse> getMyApplications(Long userId);
 
-    List<ApplicationResponseDTO> getJobApplicants(Long jobPostingId, Long companyId);
+    List<ApplicationForCompanyResponse> getJobApplicants(Long jobPostingId, Long companyId);
 
     void updateApplicationStatus(Long applicationId, UpdateStatusRequestDTO requestDTO, Long companyId);
+
+    // Methods for @PreAuthorize
+    boolean isApplicationOwner(Long applicationId, Long userId);
+    boolean isJobPostingOwner(Long jobPostingId, Long companyId);
+    boolean isJobPostingOwnerByApplication(Long applicationId, Long companyId);
 }
 

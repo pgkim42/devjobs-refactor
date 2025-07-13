@@ -41,7 +41,7 @@ public class ApplicationController {
     }
 
     @DeleteMapping("/{applicationId}")
-    @PreAuthorize("hasRole('INDIVIDUAL')")
+    @PreAuthorize("hasRole('INDIVIDUAL') and @applicationServiceImpl.isApplicationOwner(#applicationId, principal.userId)")
     public ResponseEntity<ApiResponse<Void>> deleteApplication(
             @PathVariable("applicationId") Long applicationId,
             @AuthenticationPrincipal UserDetailsImpl userDetails) {
@@ -49,8 +49,17 @@ public class ApplicationController {
         return ResponseEntity.ok(ApiResponse.success());
     }
 
+    @GetMapping("/job/{jobPostingId}")
+    @PreAuthorize("hasRole('COMPANY') and @applicationServiceImpl.isJobPostingOwner(#jobPostingId, principal.userId)")
+    public ResponseEntity<ApiResponse<List<ApplicationForCompanyResponse>>> getJobApplicants(
+            @PathVariable("jobPostingId") Long jobPostingId,
+            @AuthenticationPrincipal UserDetailsImpl userDetails) {
+        List<ApplicationForCompanyResponse> response = applicationService.getJobApplicants(jobPostingId, userDetails.getUserId());
+        return ResponseEntity.ok(ApiResponse.success(response));
+    }
+
     @PatchMapping("/{applicationId}/status")
-    @PreAuthorize("hasRole('COMPANY')")
+    @PreAuthorize("hasRole('COMPANY') and @applicationServiceImpl.isJobPostingOwnerByApplication(#applicationId, principal.userId)")
     public ResponseEntity<ApiResponse<Void>> updateApplicationStatus(
             @PathVariable("applicationId") Long applicationId,
             @RequestBody @Valid UpdateStatusRequestDTO requestDTO,
