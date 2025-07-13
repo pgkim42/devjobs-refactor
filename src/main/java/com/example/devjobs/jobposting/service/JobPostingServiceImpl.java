@@ -52,7 +52,7 @@ public class JobPostingServiceImpl implements JobPostingService {
     @Override
     @Transactional(readOnly = true)
     public Page<JobPostingResponse.Simple> getAllJobPostings(Pageable pageable) {
-        return jobPostingRepository.findAll(pageable)
+        return jobPostingRepository.findAllWithCompanyUser(pageable)
                 .map(JobPostingResponse.Simple::from);
     }
 
