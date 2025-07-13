@@ -1,5 +1,7 @@
 package com.example.devjobs.user.service.profile;
 
+import com.example.devjobs.user.entity.CompanyUser;
+import com.example.devjobs.user.repository.CompanyUserRepository;
 import com.example.devjobs.user.dto.profile.*;
 import com.example.devjobs.user.entity.*;
 import com.example.devjobs.user.repository.*;
@@ -17,6 +19,7 @@ import java.util.stream.Collectors;
 public class ProfileServiceImpl implements ProfileService {
 
     private final IndividualUserRepository individualUserRepository;
+    private final CompanyUserRepository companyUserRepository;
     private final WorkExperienceRepository workExperienceRepository;
     private final EducationRepository educationRepository;
     private final SkillRepository skillRepository;
@@ -273,5 +276,27 @@ public class ProfileServiceImpl implements ProfileService {
         }
 
         certificationRepository.delete(certification);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public CompanyProfileResponse getCompanyProfile(Long userId) {
+        CompanyUser user = companyUserRepository.findById(userId)
+                .orElseThrow(() -> new EntityNotFoundException("Company user not found with id: " + userId));
+        return CompanyProfileResponse.fromEntity(user);
+    }
+
+    @Override
+    @Transactional
+    public CompanyProfileResponse updateCompanyProfile(Long userId, UpdateCompanyProfileRequest request) {
+        CompanyUser user = companyUserRepository.findById(userId)
+                .orElseThrow(() -> new EntityNotFoundException("Company user not found with id: " + userId));
+
+        user.setCompanyAddress(request.getCompanyAddress());
+        user.setIndustry(request.getIndustry());
+        user.setCompanyWebsite(request.getCompanyWebsite());
+        user.setLogoUrl(request.getLogoUrl());
+
+        return CompanyProfileResponse.fromEntity(user);
     }
 }

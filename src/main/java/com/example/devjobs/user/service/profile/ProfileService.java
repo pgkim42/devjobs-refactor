@@ -32,4 +32,8 @@ public interface ProfileService {
     CertificationDto addCertification(Long userId, CertificationRequest request);
     CertificationDto updateCertification(Long userId, Long certificationId, CertificationRequest request);
     void deleteCertification(Long userId, Long certificationId);
+
+    // Company Profile
+    CompanyProfileResponse getCompanyProfile(Long userId);
+    CompanyProfileResponse updateCompanyProfile(Long userId, UpdateCompanyProfileRequest request);
 }

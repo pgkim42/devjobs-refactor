@@ -172,4 +172,22 @@ public class ProfileController {
         profileService.deleteCertification(userDetails.getUserId(), certificationId);
         return ResponseEntity.ok(ApiResponse.success());
     }
+
+    // Company Profile Endpoints
+    @GetMapping("/company")
+    @PreAuthorize("hasRole('COMPANY')")
+    public ResponseEntity<ApiResponse<CompanyProfileResponse>> getCompanyProfile(
+            @AuthenticationPrincipal UserDetailsImpl userDetails) {
+        CompanyProfileResponse response = profileService.getCompanyProfile(userDetails.getUserId());
+        return ResponseEntity.ok(ApiResponse.success(response));
+    }
+
+    @PutMapping("/company")
+    @PreAuthorize("hasRole('COMPANY')")
+    public ResponseEntity<ApiResponse<CompanyProfileResponse>> updateCompanyProfile(
+            @AuthenticationPrincipal UserDetailsImpl userDetails,
+            @Valid @RequestBody UpdateCompanyProfileRequest request) {
+        CompanyProfileResponse response = profileService.updateCompanyProfile(userDetails.getUserId(), request);
+        return ResponseEntity.ok(ApiResponse.success(response));
+    }
 }

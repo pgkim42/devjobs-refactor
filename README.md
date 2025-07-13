@@ -39,7 +39,7 @@
 
 ## 3. 시스템 아키텍처
 - **JPA 상속 전략**: 공통 `User` 엔티티를 `IndividualUser`와 `CompanyUser`가 상속받는 `JOINED` 전략을 채택하여 객체지향적이고 확장성 있는 구조 설계
-- **RESTful API**: 리소스(명사)��� 행위(동사)를 명확히 분리하여 API 엔드포인트를 설계하고, HTTP 메서드로 기능을 표현
+- **RESTful API**: 리소스(명사)와 행위(동사)를 명확히 분리하여 API 엔드포인트를 설계하고, HTTP 메서드로 기능을 표현
 - **Service/Repository 패턴**: 비즈니스 로직과 데이터 접근 로직을 명확히 분리
 
 ## 4. 기술 스택
@@ -53,6 +53,7 @@
 - `POST /api/auth/signin`: 로그인
 - `GET, PUT /api/profiles/individual`: 개인 프로필 조회/수정
 - `POST, PUT, DELETE /api/profiles/individual/**`: 경력, 학력 등 상세 프로필 관리
+- `GET, PUT /api/profiles/company`: 기업 프로필 조회/수정
 - `POST, GET, PATCH, DELETE /api/jobpostings/**`: 채용 공고 관리
 - `POST, GET, DELETE /api/applications/**`: 지원 관리
 - `PATCH /api/applications/{id}/status`: 지원 상태 변경
