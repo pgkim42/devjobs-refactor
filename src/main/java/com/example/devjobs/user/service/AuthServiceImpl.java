@@ -1,5 +1,6 @@
 package com.example.devjobs.user.service;
 
+import com.example.devjobs.common.exception.DuplicateResourceException;
 import com.example.devjobs.user.dto.auth.CompanyUserSignUpRequest;
 import com.example.devjobs.user.dto.auth.IndividualUserSignUpRequest;
 import com.example.devjobs.user.dto.auth.SignInRequest;
@@ -11,7 +12,7 @@ import com.example.devjobs.user.provider.JwtProvider;
 import com.example.devjobs.user.repository.SkillRepository;
 import com.example.devjobs.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -32,10 +33,10 @@ public class AuthServiceImpl implements AuthService {
     @Override
     public void signUp(IndividualUserSignUpRequest request) {
         if (userRepository.existsByLoginId(request.getLoginId())) {
-            throw new IllegalArgumentException("이미 사용중인 아이디입니다.");
+            throw new DuplicateResourceException("이미 사용중인 아이디입니다.");
         }
         if (userRepository.existsByEmail(request.getEmail())) {
-            throw new IllegalArgumentException("이미 사용중인 이메일입니다.");
+            throw new DuplicateResourceException("이미 사용중인 이메일입니다.");
         }
 
         Set<Skill> skills = new HashSet<>();
@@ -69,10 +70,10 @@ public class AuthServiceImpl implements AuthService {
     @Override
     public void signUp(CompanyUserSignUpRequest request) {
         if (userRepository.existsByLoginId(request.getLoginId())) {
-            throw new IllegalArgumentException("이미 사용중인 아이디입니다.");
+            throw new DuplicateResourceException("이미 사용중인 아이디입니다.");
         }
         if (userRepository.existsByEmail(request.getEmail())) {
-            throw new IllegalArgumentException("이미 사용중인 이메일입니다.");
+            throw new DuplicateResourceException("이미 사용중인 이메일입니다.");
         }
 
         CompanyUser user = CompanyUser.builder()
@@ -95,10 +96,10 @@ public class AuthServiceImpl implements AuthService {
     @Override
     public String signIn(SignInRequest request) {
         User user = userRepository.findByLoginId(request.getLoginId())
-                .orElseThrow(() -> new IllegalArgumentException("아이디 또는 비밀번호가 일치하지 않습니다."));
+                .orElseThrow(() -> new BadCredentialsException("아이디 또는 비밀번호가 일치하지 않습니다."));
 
         if (!passwordEncoder.matches(request.getPassword(), user.getPassword())) {
-            throw new IllegalArgumentException("아이디 또는 비밀번호가 일치하지 않습니다.");
+            throw new BadCredentialsException("아이디 또는 비밀번호가 일치하지 않습니다.");
         }
 
         return jwtProvider.create(user.getLoginId(), user.getRole(), user.getId());
