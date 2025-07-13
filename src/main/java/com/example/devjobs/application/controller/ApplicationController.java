@@ -1,8 +1,6 @@
 package com.example.devjobs.application.controller;
 
-import com.example.devjobs.application.dto.ApplicationRequestDTO;
-import com.example.devjobs.application.dto.ApplicationResponseDTO;
-import com.example.devjobs.application.dto.UpdateStatusRequestDTO;
+import com.example.devjobs.application.dto.*;
 import com.example.devjobs.application.service.ApplicationService;
 import com.example.devjobs.common.ApiResponse;
 import com.example.devjobs.user.service.UserDetailsImpl;
@@ -34,9 +32,9 @@ public class ApplicationController {
 
     @GetMapping("/my")
     @PreAuthorize("hasRole('INDIVIDUAL')")
-    public ResponseEntity<ApiResponse<List<ApplicationResponseDTO>>> getMyApplications(
+    public ResponseEntity<ApiResponse<List<ApplicationForIndividualResponse>>> getMyApplications(
             @AuthenticationPrincipal UserDetailsImpl userDetails) {
-        List<ApplicationResponseDTO> response = applicationService.getMyApplications(userDetails.getUserId());
+        List<ApplicationForIndividualResponse> response = applicationService.getMyApplications(userDetails.getUserId());
         return ResponseEntity.ok(ApiResponse.success(response));
     }
 
