@@ -114,4 +114,62 @@ public class ProfileController {
         profileService.deleteSkill(userDetails.getUserId(), skillId);
         return ResponseEntity.ok(ApiResponse.success());
     }
+
+    // Language Skill Endpoints
+    @PostMapping("/individual/language-skills")
+    @PreAuthorize("hasRole('INDIVIDUAL')")
+    public ResponseEntity<ApiResponse<LanguageSkillDto>> addLanguageSkill(
+            @AuthenticationPrincipal UserDetailsImpl userDetails,
+            @Valid @RequestBody LanguageSkillRequest request) {
+        LanguageSkillDto response = profileService.addLanguageSkill(userDetails.getUserId(), request);
+        return ResponseEntity.status(HttpStatus.CREATED).body(ApiResponse.created(response));
+    }
+
+    @PutMapping("/individual/language-skills/{languageSkillId}")
+    @PreAuthorize("hasRole('INDIVIDUAL')")
+    public ResponseEntity<ApiResponse<LanguageSkillDto>> updateLanguageSkill(
+            @AuthenticationPrincipal UserDetailsImpl userDetails,
+            @PathVariable Long languageSkillId,
+            @Valid @RequestBody LanguageSkillRequest request) {
+        LanguageSkillDto response = profileService.updateLanguageSkill(userDetails.getUserId(), languageSkillId, request);
+        return ResponseEntity.ok(ApiResponse.success(response));
+    }
+
+    @DeleteMapping("/individual/language-skills/{languageSkillId}")
+    @PreAuthorize("hasRole('INDIVIDUAL')")
+    public ResponseEntity<ApiResponse<Void>> deleteLanguageSkill(
+            @AuthenticationPrincipal UserDetailsImpl userDetails,
+            @PathVariable Long languageSkillId) {
+        profileService.deleteLanguageSkill(userDetails.getUserId(), languageSkillId);
+        return ResponseEntity.ok(ApiResponse.success());
+    }
+
+    // Certification Endpoints
+    @PostMapping("/individual/certifications")
+    @PreAuthorize("hasRole('INDIVIDUAL')")
+    public ResponseEntity<ApiResponse<CertificationDto>> addCertification(
+            @AuthenticationPrincipal UserDetailsImpl userDetails,
+            @Valid @RequestBody CertificationRequest request) {
+        CertificationDto response = profileService.addCertification(userDetails.getUserId(), request);
+        return ResponseEntity.status(HttpStatus.CREATED).body(ApiResponse.created(response));
+    }
+
+    @PutMapping("/individual/certifications/{certificationId}")
+    @PreAuthorize("hasRole('INDIVIDUAL')")
+    public ResponseEntity<ApiResponse<CertificationDto>> updateCertification(
+            @AuthenticationPrincipal UserDetailsImpl userDetails,
+            @PathVariable Long certificationId,
+            @Valid @RequestBody CertificationRequest request) {
+        CertificationDto response = profileService.updateCertification(userDetails.getUserId(), certificationId, request);
+        return ResponseEntity.ok(ApiResponse.success(response));
+    }
+
+    @DeleteMapping("/individual/certifications/{certificationId}")
+    @PreAuthorize("hasRole('INDIVIDUAL')")
+    public ResponseEntity<ApiResponse<Void>> deleteCertification(
+            @AuthenticationPrincipal UserDetailsImpl userDetails,
+            @PathVariable Long certificationId) {
+        profileService.deleteCertification(userDetails.getUserId(), certificationId);
+        return ResponseEntity.ok(ApiResponse.success());
+    }
 }

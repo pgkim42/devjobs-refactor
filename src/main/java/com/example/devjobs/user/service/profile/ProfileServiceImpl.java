@@ -1,14 +1,8 @@
 package com.example.devjobs.user.service.profile;
 
 import com.example.devjobs.user.dto.profile.*;
-import com.example.devjobs.user.entity.Education;
-import com.example.devjobs.user.entity.IndividualUser;
-import com.example.devjobs.user.entity.Skill;
-import com.example.devjobs.user.entity.WorkExperience;
-import com.example.devjobs.user.repository.EducationRepository;
-import com.example.devjobs.user.repository.IndividualUserRepository;
-import com.example.devjobs.user.repository.SkillRepository;
-import com.example.devjobs.user.repository.WorkExperienceRepository;
+import com.example.devjobs.user.entity.*;
+import com.example.devjobs.user.repository.*;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.AccessDeniedException;
@@ -26,6 +20,8 @@ public class ProfileServiceImpl implements ProfileService {
     private final WorkExperienceRepository workExperienceRepository;
     private final EducationRepository educationRepository;
     private final SkillRepository skillRepository;
+    private final LanguageSkillRepository languageSkillRepository;
+    private final CertificationRepository certificationRepository;
 
     @Override
     @Transactional(readOnly = true)
@@ -185,5 +181,97 @@ public class ProfileServiceImpl implements ProfileService {
                 .orElseThrow(() -> new EntityNotFoundException("Skill not found with id: " + skillId));
 
         user.getSkills().remove(skill);
+    }
+
+    @Override
+    @Transactional
+    public LanguageSkillDto addLanguageSkill(Long userId, LanguageSkillRequest request) {
+        IndividualUser user = individualUserRepository.findById(userId)
+                .orElseThrow(() -> new EntityNotFoundException("User not found with id: " + userId));
+
+        LanguageSkill languageSkill = LanguageSkill.builder()
+                .language(request.getLanguage())
+                .proficiency(request.getProficiency())
+                .individualUser(user)
+                .build();
+
+        LanguageSkill savedLanguageSkill = languageSkillRepository.save(languageSkill);
+        return LanguageSkillDto.fromEntity(savedLanguageSkill);
+    }
+
+    @Override
+    @Transactional
+    public LanguageSkillDto updateLanguageSkill(Long userId, Long languageSkillId, LanguageSkillRequest request) {
+        LanguageSkill languageSkill = languageSkillRepository.findById(languageSkillId)
+                .orElseThrow(() -> new EntityNotFoundException("Language skill not found with id: " + languageSkillId));
+
+        if (!languageSkill.getIndividualUser().getId().equals(userId)) {
+            throw new AccessDeniedException("You do not have permission to update this language skill.");
+        }
+
+        languageSkill.setLanguage(request.getLanguage());
+        languageSkill.setProficiency(request.getProficiency());
+
+        return LanguageSkillDto.fromEntity(languageSkill);
+    }
+
+    @Override
+    @Transactional
+    public void deleteLanguageSkill(Long userId, Long languageSkillId) {
+        LanguageSkill languageSkill = languageSkillRepository.findById(languageSkillId)
+                .orElseThrow(() -> new EntityNotFoundException("Language skill not found with id: " + languageSkillId));
+
+        if (!languageSkill.getIndividualUser().getId().equals(userId)) {
+            throw new AccessDeniedException("You do not have permission to delete this language skill.");
+        }
+
+        languageSkillRepository.delete(languageSkill);
+    }
+
+    @Override
+    @Transactional
+    public CertificationDto addCertification(Long userId, CertificationRequest request) {
+        IndividualUser user = individualUserRepository.findById(userId)
+                .orElseThrow(() -> new EntityNotFoundException("User not found with id: " + userId));
+
+        Certification certification = Certification.builder()
+                .name(request.getName())
+                .issuingOrganization(request.getIssuingOrganization())
+                .issueDate(request.getIssueDate())
+                .individualUser(user)
+                .build();
+
+        Certification savedCertification = certificationRepository.save(certification);
+        return CertificationDto.fromEntity(savedCertification);
+    }
+
+    @Override
+    @Transactional
+    public CertificationDto updateCertification(Long userId, Long certificationId, CertificationRequest request) {
+        Certification certification = certificationRepository.findById(certificationId)
+                .orElseThrow(() -> new EntityNotFoundException("Certification not found with id: " + certificationId));
+
+        if (!certification.getIndividualUser().getId().equals(userId)) {
+            throw new AccessDeniedException("You do not have permission to update this certification.");
+        }
+
+        certification.setName(request.getName());
+        certification.setIssuingOrganization(request.getIssuingOrganization());
+        certification.setIssueDate(request.getIssueDate());
+
+        return CertificationDto.fromEntity(certification);
+    }
+
+    @Override
+    @Transactional
+    public void deleteCertification(Long userId, Long certificationId) {
+        Certification certification = certificationRepository.findById(certificationId)
+                .orElseThrow(() -> new EntityNotFoundException("Certification not found with id: " + certificationId));
+
+        if (!certification.getIndividualUser().getId().equals(userId)) {
+            throw new AccessDeniedException("You do not have permission to delete this certification.");
+        }
+
+        certificationRepository.delete(certification);
     }
 }

@@ -22,4 +22,14 @@ public interface ProfileService {
     // Skill
     Set<SkillDto> addSkill(Long userId, SkillRequest request);
     void deleteSkill(Long userId, Long skillId);
+
+    // Language Skill
+    LanguageSkillDto addLanguageSkill(Long userId, LanguageSkillRequest request);
+    LanguageSkillDto updateLanguageSkill(Long userId, Long languageSkillId, LanguageSkillRequest request);
+    void deleteLanguageSkill(Long userId, Long languageSkillId);
+
+    // Certification
+    CertificationDto addCertification(Long userId, CertificationRequest request);
+    CertificationDto updateCertification(Long userId, Long certificationId, CertificationRequest request);
+    void deleteCertification(Long userId, Long certificationId);
 }
