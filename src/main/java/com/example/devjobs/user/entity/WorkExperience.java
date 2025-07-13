@@ -23,6 +23,8 @@ public class WorkExperience extends BaseEntity {
     @Column(nullable = false)
     private String companyName;
 
+    private String department;
+
     private String position;
 
     @Column(nullable = false)

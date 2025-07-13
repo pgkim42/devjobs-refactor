@@ -29,9 +29,13 @@ public class Education extends BaseEntity {
     @Enumerated(EnumType.STRING)
     private Degree degree;
 
-    private LocalDate startDate;
+    private LocalDate admissionDate;
 
-    private LocalDate endDate;
+    private LocalDate graduationDate;
+
+    private Double gpa;
+
+    private Double maxGpa;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
