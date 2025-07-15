@@ -38,8 +38,10 @@ public class JobPostingController {
     }
 
     @GetMapping
-    public ResponseEntity<ApiResponse<Page<JobPostingResponse.Simple>>> getAllJobPostings(Pageable pageable) {
-        Page<JobPostingResponse.Simple> response = jobPostingService.getAllJobPostings(pageable);
+    public ResponseEntity<ApiResponse<Page<JobPostingResponse.Simple>>> getJobPostings(
+            @RequestParam(required = false) String keyword,
+            Pageable pageable) {
+        Page<JobPostingResponse.Simple> response = jobPostingService.searchJobPostings(keyword, pageable);
         return ResponseEntity.ok(ApiResponse.success(response));
     }
 

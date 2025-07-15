@@ -13,6 +13,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.StringUtils;
 
 import java.util.Objects;
 
@@ -73,6 +74,16 @@ public class JobPostingServiceImpl implements JobPostingService {
         JobPosting jobPosting = findJobPostingById(postId);
         validateOwner(jobPosting, companyUserId);
         jobPostingRepository.delete(jobPosting);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public Page<JobPostingResponse.Simple> searchJobPostings(String keyword, Pageable pageable) {
+        if (!StringUtils.hasText(keyword)) {
+            return getAllJobPostings(pageable);
+        }
+        return jobPostingRepository.searchByKeyword(keyword, pageable)
+                .map(JobPostingResponse.Simple::from);
     }
 
     private JobPosting findJobPostingById(Long postId) {
