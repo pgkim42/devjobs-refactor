@@ -3,6 +3,7 @@ package com.example.devjobs.jobposting.service;
 import com.example.devjobs.jobposting.dto.JobPostingRequest;
 import com.example.devjobs.jobposting.dto.JobPostingResponse;
 import com.example.devjobs.jobposting.entity.JobPosting;
+import com.example.devjobs.jobposting.entity.JobPostingSpecification;
 import com.example.devjobs.jobposting.repository.JobPostingRepository;
 import com.example.devjobs.user.entity.CompanyUser;
 import com.example.devjobs.user.repository.UserRepository;
@@ -10,6 +11,7 @@ import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -78,11 +80,13 @@ public class JobPostingServiceImpl implements JobPostingService {
 
     @Override
     @Transactional(readOnly = true)
-    public Page<JobPostingResponse.Simple> searchJobPostings(String keyword, Pageable pageable) {
-        if (!StringUtils.hasText(keyword)) {
+    public Page<JobPostingResponse.Simple> searchJobPostings(String keyword, String location, Pageable pageable) {
+        // 검색 조건이 없는 경우, 기존의 전체 조회 메소드를 호출합니다.
+        if (!StringUtils.hasText(keyword) && !StringUtils.hasText(location)) {
             return getAllJobPostings(pageable);
         }
-        return jobPostingRepository.searchByKeyword(keyword, pageable)
+        Specification<JobPosting> spec = JobPostingSpecification.search(keyword, location);
+        return jobPostingRepository.findAll(spec, pageable)
                 .map(JobPostingResponse.Simple::from);
     }
 

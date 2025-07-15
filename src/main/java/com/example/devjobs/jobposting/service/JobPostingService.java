@@ -17,5 +17,5 @@ public interface JobPostingService {
 
     void deleteJobPosting(Long postId, Long companyUserId);
 
-    Page<JobPostingResponse.Simple> searchJobPostings(String keyword, Pageable pageable);
+    Page<JobPostingResponse.Simple> searchJobPostings(String keyword, String location, Pageable pageable);
 }
