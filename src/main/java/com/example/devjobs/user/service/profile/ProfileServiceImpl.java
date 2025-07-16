@@ -1,5 +1,6 @@
 package com.example.devjobs.user.service.profile;
 
+import com.example.devjobs.common.file.FileService;
 import com.example.devjobs.user.entity.CompanyUser;
 import com.example.devjobs.user.repository.CompanyUserRepository;
 import com.example.devjobs.user.dto.profile.*;
@@ -10,6 +11,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -25,6 +27,7 @@ public class ProfileServiceImpl implements ProfileService {
     private final SkillRepository skillRepository;
     private final LanguageSkillRepository languageSkillRepository;
     private final CertificationRepository certificationRepository;
+    private final FileService fileService;
 
     @Override
     @Transactional(readOnly = true)
@@ -46,6 +49,21 @@ public class ProfileServiceImpl implements ProfileService {
         user.setPortfolioUrl(request.getPortfolioUrl());
         user.setHeadline(request.getHeadline());
         user.setWorkStatus(request.getWorkStatus());
+
+        return IndividualProfileResponse.fromEntity(user);
+    }
+
+    @Override
+    @Transactional
+    public IndividualProfileResponse uploadResume(Long userId, MultipartFile file) {
+        IndividualUser user = individualUserRepository.findById(userId)
+                .orElseThrow(() -> new EntityNotFoundException("User not found with id: " + userId));
+
+        String fileName = fileService.storeFile(file);
+        String fileUrl = fileService.getFileUrl(fileName);
+
+        user.setResumeUrl(fileUrl);
+        individualUserRepository.save(user);
 
         return IndividualProfileResponse.fromEntity(user);
     }
@@ -296,6 +314,21 @@ public class ProfileServiceImpl implements ProfileService {
         user.setIndustry(request.getIndustry());
         user.setCompanyWebsite(request.getCompanyWebsite());
         user.setLogoUrl(request.getLogoUrl());
+
+        return CompanyProfileResponse.fromEntity(user);
+    }
+
+    @Override
+    @Transactional
+    public CompanyProfileResponse uploadCompanyLogo(Long userId, MultipartFile file) {
+        CompanyUser user = companyUserRepository.findById(userId)
+                .orElseThrow(() -> new EntityNotFoundException("Company user not found with id: " + userId));
+
+        String fileName = fileService.storeFile(file);
+        String fileUrl = fileService.getFileUrl(fileName);
+
+        user.setLogoUrl(fileUrl);
+        companyUserRepository.save(user);
 
         return CompanyProfileResponse.fromEntity(user);
     }

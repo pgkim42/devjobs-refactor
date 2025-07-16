@@ -33,7 +33,7 @@ public class EducationRequest {
     private LocalDate graduationDate;
 
     @DecimalMin(value = "0.0")
-    @DecimalMax(value = "4.5") // Or whatever the max GPA is
+    @DecimalMax(value = "4.5") // 최대 학점은 학교 규정에 맞게 사용
     private Double gpa;
 
     @DecimalMin(value = "0.0")

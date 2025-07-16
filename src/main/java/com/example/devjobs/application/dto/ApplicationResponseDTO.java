@@ -24,7 +24,7 @@ public class ApplicationResponseDTO {
                 .jobPostingId(application.getJobPosting().getId())
                 .jobPostingTitle(application.getJobPosting().getTitle())
                 .applicantId(application.getIndividualUser().getId())
-                .applicantName(application.getIndividualUser().getName()) // IndividualUser inherits getName() from User
+                .applicantName(application.getIndividualUser().getName()) // IndividualUser는 User로부터 getName()을 상속받습니다.
                 .status(application.getStatus())
                 .appliedAt(application.getCreateDate())
                 .build();

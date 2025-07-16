@@ -1,9 +1,10 @@
 package com.example.devjobs.jobposting.service;
 
+import com.example.devjobs.jobcategory.entity.JobCategory;
+import com.example.devjobs.jobcategory.repository.JobCategoryRepository;
 import com.example.devjobs.jobposting.dto.JobPostingRequest;
 import com.example.devjobs.jobposting.dto.JobPostingResponse;
 import com.example.devjobs.jobposting.entity.JobPosting;
-import com.example.devjobs.jobposting.entity.JobPostingSpecification;
 import com.example.devjobs.jobposting.repository.JobPostingRepository;
 import com.example.devjobs.user.entity.CompanyUser;
 import com.example.devjobs.user.repository.UserRepository;
@@ -11,11 +12,9 @@ import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.jpa.domain.Specification;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.util.StringUtils;
 
 import java.util.Objects;
 
@@ -26,19 +25,25 @@ public class JobPostingServiceImpl implements JobPostingService {
 
     private final JobPostingRepository jobPostingRepository;
     private final UserRepository userRepository;
+    private final JobCategoryRepository jobCategoryRepository; // 의존성 추가
 
     @Override
     public JobPostingResponse.Detail createJobPosting(JobPostingRequest.Create request, Long companyUserId) {
         CompanyUser companyUser = (CompanyUser) userRepository.findById(companyUserId)
                 .orElseThrow(() -> new EntityNotFoundException("Company user not found with id: " + companyUserId));
 
+        JobCategory jobCategory = jobCategoryRepository.findById(request.getJobCategoryId())
+                .orElseThrow(() -> new EntityNotFoundException("JobCategory not found with id: " + request.getJobCategoryId()));
+
         JobPosting jobPosting = JobPosting.builder()
                 .companyUser(companyUser)
+                .jobCategory(jobCategory)
                 .title(request.getTitle())
                 .content(request.getContent())
                 .salary(request.getSalary())
                 .deadline(request.getDeadline())
                 .workLocation(request.getWorkLocation())
+                .requiredExperienceYears(request.getRequiredExperienceYears())
                 .build();
 
         JobPosting savedJobPosting = jobPostingRepository.save(jobPosting);
@@ -54,8 +59,13 @@ public class JobPostingServiceImpl implements JobPostingService {
 
     @Override
     @Transactional(readOnly = true)
-    public Page<JobPostingResponse.Simple> getAllJobPostings(Pageable pageable) {
-        return jobPostingRepository.findAllWithCompanyUser(pageable)
+    public Page<JobPostingResponse.Simple> searchJobPostings(
+            String keyword, String location, Integer minSalary, Integer maxSalary,
+            Integer minExperience, Integer maxExperience, Long jobCategoryId, Pageable pageable) {
+
+        return jobPostingRepository.search(
+                        keyword, location, minSalary, maxSalary,
+                        minExperience, maxExperience, jobCategoryId, pageable)
                 .map(JobPostingResponse.Simple::from);
     }
 
@@ -64,7 +74,6 @@ public class JobPostingServiceImpl implements JobPostingService {
         JobPosting jobPosting = findJobPostingById(postId);
         validateOwner(jobPosting, companyUserId);
 
-        // Using a separate method for updates can be cleaner
         updateFields(jobPosting, request);
 
         JobPosting updatedJobPosting = jobPostingRepository.save(jobPosting);
@@ -76,18 +85,6 @@ public class JobPostingServiceImpl implements JobPostingService {
         JobPosting jobPosting = findJobPostingById(postId);
         validateOwner(jobPosting, companyUserId);
         jobPostingRepository.delete(jobPosting);
-    }
-
-    @Override
-    @Transactional(readOnly = true)
-    public Page<JobPostingResponse.Simple> searchJobPostings(String keyword, String location, Pageable pageable) {
-        // 검색 조건이 없는 경우, 기존의 전체 조회 메소드를 호출합니다.
-        if (!StringUtils.hasText(keyword) && !StringUtils.hasText(location)) {
-            return getAllJobPostings(pageable);
-        }
-        Specification<JobPosting> spec = JobPostingSpecification.search(keyword, location);
-        return jobPostingRepository.findAll(spec, pageable)
-                .map(JobPostingResponse.Simple::from);
     }
 
     private JobPosting findJobPostingById(Long postId) {
@@ -102,12 +99,21 @@ public class JobPostingServiceImpl implements JobPostingService {
     }
 
     private void updateFields(JobPosting jobPosting, JobPostingRequest.Update request) {
+        JobCategory jobCategory = null;
+        if (request.getJobCategoryId() != null) {
+            jobCategory = jobCategoryRepository.findById(request.getJobCategoryId())
+                    .orElseThrow(() -> new EntityNotFoundException("JobCategory not found with id: " + request.getJobCategoryId()));
+        }
+
         jobPosting.update(
                 request.getTitle(),
                 request.getContent(),
                 request.getSalary(),
                 request.getDeadline(),
-                request.getWorkLocation()
+                request.getWorkLocation(),
+                request.getRequiredExperienceYears(),
+                jobCategory
         );
     }
 }
+

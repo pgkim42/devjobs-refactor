@@ -27,6 +27,10 @@ public class JobPosting extends BaseEntity {
     @JoinColumn(name = "company_user_id", nullable = false)
     private CompanyUser companyUser;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "job_category_id")
+    private com.example.devjobs.jobcategory.entity.JobCategory jobCategory;
+
     @Column(nullable = false)
     private String title;
 
@@ -39,14 +43,19 @@ public class JobPosting extends BaseEntity {
     @Column(nullable = false)
     private LocalDate deadline;
 
+    @Column
+    private Integer requiredExperienceYears;
+
     @Column(nullable = false)
     private String workLocation;
 
-    public void update(String title, String content, Long salary, LocalDate deadline, String workLocation) {
+    public void update(String title, String content, Long salary, LocalDate deadline, String workLocation, Integer requiredExperienceYears, com.example.devjobs.jobcategory.entity.JobCategory jobCategory) {
         if (title != null) this.title = title;
         if (content != null) this.content = content;
         if (salary != null) this.salary = salary;
         if (deadline != null) this.deadline = deadline;
         if (workLocation != null) this.workLocation = workLocation;
+        if (requiredExperienceYears != null) this.requiredExperienceYears = requiredExperienceYears;
+        if (jobCategory != null) this.jobCategory = jobCategory;
     }
 }

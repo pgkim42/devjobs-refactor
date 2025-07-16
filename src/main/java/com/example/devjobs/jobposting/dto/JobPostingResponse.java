@@ -20,6 +20,7 @@ public class JobPostingResponse {
         private Long salary;
         private LocalDate deadline;
         private String workLocation;
+        private Integer requiredExperienceYears;
         private CompanyInfo companyInfo;
         private LocalDateTime createDate;
         private LocalDateTime updateDate;
@@ -32,6 +33,7 @@ public class JobPostingResponse {
                     .salary(jobPosting.getSalary())
                     .deadline(jobPosting.getDeadline())
                     .workLocation(jobPosting.getWorkLocation())
+                    .requiredExperienceYears(jobPosting.getRequiredExperienceYears())
                     .companyInfo(CompanyInfo.from(jobPosting.getCompanyUser()))
                     .createDate(jobPosting.getCreateDate())
                     .updateDate(jobPosting.getUpdateDate())
@@ -44,6 +46,7 @@ public class JobPostingResponse {
     public static class Simple {
         private Long id;
         private String title;
+        private Integer requiredExperienceYears;
         private LocalDate deadline;
         private String companyName;
 
@@ -51,6 +54,7 @@ public class JobPostingResponse {
             return Simple.builder()
                     .id(jobPosting.getId())
                     .title(jobPosting.getTitle())
+                    .requiredExperienceYears(jobPosting.getRequiredExperienceYears())
                     .deadline(jobPosting.getDeadline())
                     .companyName(jobPosting.getCompanyUser().getCompanyName())
                     .build();

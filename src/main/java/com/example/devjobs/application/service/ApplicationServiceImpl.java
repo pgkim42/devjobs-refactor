@@ -20,7 +20,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 import java.util.stream.Collectors;
 
-@Service("applicationServiceImpl") // Add a bean name to be used in @PreAuthorize
+@Service("applicationServiceImpl") // @PreAuthorize에서 사용할 Bean 이름 설정
 @RequiredArgsConstructor
 public class ApplicationServiceImpl implements ApplicationService {
 
@@ -56,7 +56,7 @@ public class ApplicationServiceImpl implements ApplicationService {
     public void deleteApplication(Long applicationId, Long userId) {
         Application application = applicationRepository.findById(applicationId)
                 .orElseThrow(() -> new EntityNotFoundException("지원 내역을 찾을 수 없습니다."));
-        // Authorization check is now handled by @PreAuthorize in the controller
+        // 인가 확인은 이제 컨트롤러의 @PreAuthorize에서 처리됩니다.
         applicationRepository.delete(application);
     }
 
@@ -75,7 +75,7 @@ public class ApplicationServiceImpl implements ApplicationService {
     public List<ApplicationForCompanyResponse> getJobApplicants(Long jobPostingId, Long companyId) {
         JobPosting jobPosting = jobPostingRepository.findById(jobPostingId)
                 .orElseThrow(() -> new EntityNotFoundException("채용 공고를 찾을 수 없습니다."));
-        // Authorization check is now handled by @PreAuthorize in the controller
+        // 인가 확인은 이제 컨트롤러의 @PreAuthorize에서 처리됩니다.
         return applicationRepository.findByJobPosting(jobPosting).stream()
                 .map(ApplicationForCompanyResponse::fromEntity)
                 .collect(Collectors.toList());
@@ -86,7 +86,7 @@ public class ApplicationServiceImpl implements ApplicationService {
     public void updateApplicationStatus(Long applicationId, UpdateStatusRequestDTO requestDTO, Long companyId) {
         Application application = applicationRepository.findById(applicationId)
                 .orElseThrow(() -> new EntityNotFoundException("지원 내역을 찾을 수 없습니다."));
-        // Authorization check is now handled by @PreAuthorize in the controller
+        // 인가 확인은 이제 컨트롤러의 @PreAuthorize에서 처리됩니다.
         application.setStatus(requestDTO.getStatus());
         applicationRepository.save(application);
     }

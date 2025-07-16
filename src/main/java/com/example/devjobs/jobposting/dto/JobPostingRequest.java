@@ -27,6 +27,12 @@ public class JobPostingRequest {
 
         @NotBlank(message = "Work location is required")
         private String workLocation;
+
+        @NotNull(message = "Required experience years is required")
+        private Integer requiredExperienceYears;
+
+        @NotNull(message = "Job category ID is required")
+        private Long jobCategoryId;
     }
 
     @Getter
@@ -38,5 +44,7 @@ public class JobPostingRequest {
         @Future(message = "Deadline must be in the future")
         private LocalDate deadline;
         private String workLocation;
+        private Integer requiredExperienceYears;
+        private Long jobCategoryId;
     }
 }

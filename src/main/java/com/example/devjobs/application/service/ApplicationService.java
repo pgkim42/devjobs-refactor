@@ -15,7 +15,7 @@ public interface ApplicationService {
 
     void updateApplicationStatus(Long applicationId, UpdateStatusRequestDTO requestDTO, Long companyId);
 
-    // Methods for @PreAuthorize
+    // @PreAuthorize를 위한 메소드
     boolean isApplicationOwner(Long applicationId, Long userId);
     boolean isJobPostingOwner(Long jobPostingId, Long companyId);
     boolean isJobPostingOwnerByApplication(Long applicationId, Long companyId);

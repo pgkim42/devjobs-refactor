@@ -38,7 +38,16 @@ public class ProfileController {
         return ResponseEntity.ok(ApiResponse.success(response));
     }
 
-    // Work Experience Endpoints
+    @PostMapping("/individual/resume")
+    @PreAuthorize("hasRole('INDIVIDUAL')")
+    public ResponseEntity<ApiResponse<IndividualProfileResponse>> uploadResume(
+            @AuthenticationPrincipal UserDetailsImpl userDetails,
+            @RequestPart("file") org.springframework.web.multipart.MultipartFile file) {
+        IndividualProfileResponse response = profileService.uploadResume(userDetails.getUserId(), file);
+        return ResponseEntity.ok(ApiResponse.success(response));
+    }
+
+    // 경력 관련 엔드포인트
     @PostMapping("/individual/work-experiences")
     @PreAuthorize("hasRole('INDIVIDUAL')")
     public ResponseEntity<ApiResponse<WorkExperienceDto>> addWorkExperience(
@@ -67,7 +76,7 @@ public class ProfileController {
         return ResponseEntity.ok(ApiResponse.success());
     }
 
-    // Education Endpoints
+    // 학력 관련 엔드포인트
     @PostMapping("/individual/educations")
     @PreAuthorize("hasRole('INDIVIDUAL')")
     public ResponseEntity<ApiResponse<EducationDto>> addEducation(
@@ -96,7 +105,7 @@ public class ProfileController {
         return ResponseEntity.ok(ApiResponse.success());
     }
 
-    // Skill Endpoints
+    // 기술 관련 엔드포인트
     @PostMapping("/individual/skills")
     @PreAuthorize("hasRole('INDIVIDUAL')")
     public ResponseEntity<ApiResponse<Set<SkillDto>>> addSkill(
@@ -115,7 +124,7 @@ public class ProfileController {
         return ResponseEntity.ok(ApiResponse.success());
     }
 
-    // Language Skill Endpoints
+    // 어학 능력 관련 엔드포인트
     @PostMapping("/individual/language-skills")
     @PreAuthorize("hasRole('INDIVIDUAL')")
     public ResponseEntity<ApiResponse<LanguageSkillDto>> addLanguageSkill(
@@ -144,7 +153,7 @@ public class ProfileController {
         return ResponseEntity.ok(ApiResponse.success());
     }
 
-    // Certification Endpoints
+    // 자격증 관련 엔드포인트
     @PostMapping("/individual/certifications")
     @PreAuthorize("hasRole('INDIVIDUAL')")
     public ResponseEntity<ApiResponse<CertificationDto>> addCertification(
@@ -173,7 +182,7 @@ public class ProfileController {
         return ResponseEntity.ok(ApiResponse.success());
     }
 
-    // Company Profile Endpoints
+    // 기업 프로필 관련 엔드포인트
     @GetMapping("/company")
     @PreAuthorize("hasRole('COMPANY')")
     public ResponseEntity<ApiResponse<CompanyProfileResponse>> getCompanyProfile(
@@ -188,6 +197,15 @@ public class ProfileController {
             @AuthenticationPrincipal UserDetailsImpl userDetails,
             @Valid @RequestBody UpdateCompanyProfileRequest request) {
         CompanyProfileResponse response = profileService.updateCompanyProfile(userDetails.getUserId(), request);
+        return ResponseEntity.ok(ApiResponse.success(response));
+    }
+
+    @PostMapping("/company/logo")
+    @PreAuthorize("hasRole('COMPANY')")
+    public ResponseEntity<ApiResponse<CompanyProfileResponse>> uploadCompanyLogo(
+            @AuthenticationPrincipal UserDetailsImpl userDetails,
+            @RequestPart("file") org.springframework.web.multipart.MultipartFile file) {
+        CompanyProfileResponse response = profileService.uploadCompanyLogo(userDetails.getUserId(), file);
         return ResponseEntity.ok(ApiResponse.success(response));
     }
 }

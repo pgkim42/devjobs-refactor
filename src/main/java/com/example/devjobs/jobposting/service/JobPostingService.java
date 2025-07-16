@@ -11,11 +11,18 @@ public interface JobPostingService {
 
     JobPostingResponse.Detail getJobPosting(Long postId);
 
-    Page<JobPostingResponse.Simple> getAllJobPostings(Pageable pageable);
-
     JobPostingResponse.Detail updateJobPosting(Long postId, JobPostingRequest.Update request, Long companyUserId);
 
     void deleteJobPosting(Long postId, Long companyUserId);
 
-    Page<JobPostingResponse.Simple> searchJobPostings(String keyword, String location, Pageable pageable);
+    Page<JobPostingResponse.Simple> searchJobPostings(
+            String keyword,
+            String location,
+            Integer minSalary,
+            Integer maxSalary,
+            Integer minExperience,
+            Integer maxExperience,
+            Long jobCategoryId,
+            Pageable pageable
+    );
 }

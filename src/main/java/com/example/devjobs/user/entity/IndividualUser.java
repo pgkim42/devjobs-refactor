@@ -29,6 +29,8 @@ public class IndividualUser extends User {
 
     private String profileImageUrl;
 
+    private String resumeUrl;
+
     @Column(length = 200)
     private String headline;
 
