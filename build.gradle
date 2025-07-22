@@ -75,6 +75,3 @@ tasks.named('test') {
     useJUnitPlatform()
 }
 
-test {
-    "**/*"
-}

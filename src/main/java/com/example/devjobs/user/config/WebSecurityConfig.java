@@ -30,6 +30,8 @@ public class WebSecurityConfig {
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/", "/api/auth/**", "/oauth2/**").permitAll()
+                        .requestMatchers("/api/jobpostings/**").permitAll() // 채용공고 관련 API는 인증 없이 접근 가능
+                        .requestMatchers("/api/jobcategories/**").permitAll() // 직무 카테고리도 인증 없이 접근 가능
                         .anyRequest().authenticated()
                 )
                 .userDetailsService(userDetailsService)
