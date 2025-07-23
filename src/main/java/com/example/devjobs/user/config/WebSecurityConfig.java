@@ -25,13 +25,16 @@ public class WebSecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
+                .cors(cors -> cors.and()) // CORS 허용
                 .csrf(csrf -> csrf.disable())
                 .httpBasic(httpBasic -> httpBasic.disable())
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/", "/api/auth/**", "/oauth2/**").permitAll()
+                        .requestMatchers("/", "/api/auth/signin", "/api/auth/signup/**", "/oauth2/**").permitAll()
                         .requestMatchers("/api/jobpostings/**").permitAll() // 채용공고 관련 API는 인증 없이 접근 가능
                         .requestMatchers("/api/jobcategories/**").permitAll() // 직무 카테고리도 인증 없이 접근 가능
+                        .requestMatchers("/api/job-categories/**").permitAll() // 직무 카테고리 새 경로
+                        .requestMatchers("/api/auth/me").authenticated() // 사용자 정보 조회는 인증 필요
                         .anyRequest().authenticated()
                 )
                 .userDetailsService(userDetailsService)

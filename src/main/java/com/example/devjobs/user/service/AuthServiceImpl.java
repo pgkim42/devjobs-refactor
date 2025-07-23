@@ -1,7 +1,9 @@
 package com.example.devjobs.user.service;
 
 import com.example.devjobs.common.exception.DuplicateResourceException;
+import com.example.devjobs.common.exception.ResourceNotFoundException;
 import com.example.devjobs.user.dto.auth.CompanyUserSignUpRequest;
+import com.example.devjobs.user.dto.auth.CurrentUserResponse;
 import com.example.devjobs.user.dto.auth.IndividualUserSignUpRequest;
 import com.example.devjobs.user.dto.auth.SignInRequest;
 import com.example.devjobs.user.entity.CompanyUser;
@@ -103,5 +105,34 @@ public class AuthServiceImpl implements AuthService {
         }
 
         return jwtProvider.create(user.getLoginId(), user.getRole(), user.getId());
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public CurrentUserResponse getCurrentUser(Long userId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new ResourceNotFoundException("사용자를 찾을 수 없습니다."));
+
+        CurrentUserResponse.CurrentUserResponseBuilder builder = CurrentUserResponse.builder()
+                .userId(user.getId())
+                .loginId(user.getLoginId())
+                .name(user.getName())
+                .email(user.getEmail())
+                .role(user.getRole());
+
+        if (user instanceof IndividualUser) {
+            builder.userType("individual");
+        } else if (user instanceof CompanyUser) {
+            CompanyUser companyUser = (CompanyUser) user;
+            builder.userType("company")
+                    .companyCode(companyUser.getCompanyCode())
+                    .companyName(companyUser.getCompanyName())
+                    .industry(companyUser.getIndustry())
+                    .ceoName(companyUser.getCeoName())
+                    .companyAddress(companyUser.getCompanyAddress())
+                    .companyWebsite(companyUser.getCompanyWebsite());
+        }
+
+        return builder.build();
     }
 }

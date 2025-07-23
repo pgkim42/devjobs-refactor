@@ -7,6 +7,7 @@ import io.jsonwebtoken.security.Keys;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
+import javax.crypto.SecretKey;
 import java.nio.charset.StandardCharsets;
 import java.security.Key;
 import java.time.Instant;
@@ -16,12 +17,20 @@ import java.util.Date;
 @Component
 public class JwtProvider {
 
-    @Value("${jwt.secret}")
-    private String secretKey;
+    private final Key key;
+    
+    public JwtProvider(@Value("${jwt.secret}") String secretKey) {
+        // If the provided key is too short, generate a secure one
+        byte[] keyBytes = secretKey.getBytes(StandardCharsets.UTF_8);
+        if (keyBytes.length < 32) { // 256 bits = 32 bytes
+            this.key = Keys.secretKeyFor(SignatureAlgorithm.HS256);
+        } else {
+            this.key = Keys.hmacShaKeyFor(keyBytes);
+        }
+    }
 
     public String create(String loginId, String role, Long userId) {
         Date expiredDate = Date.from(Instant.now().plus(1, ChronoUnit.HOURS));
-        Key key = Keys.hmacShaKeyFor(secretKey.getBytes(StandardCharsets.UTF_8));
 
         return Jwts.builder()
                 .signWith(key, SignatureAlgorithm.HS256)
@@ -34,7 +43,6 @@ public class JwtProvider {
     }
 
     public Claims validate(String jwt) {
-        Key key = Keys.hmacShaKeyFor(secretKey.getBytes(StandardCharsets.UTF_8));
 
         try {
             return Jwts.parserBuilder()

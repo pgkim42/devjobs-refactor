@@ -25,7 +25,10 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             throws ServletException, IOException {
 
         String path = request.getRequestURI();
-        if (path.startsWith("/api/auth/") || path.startsWith("/oauth2/")) {
+        // /api/auth/me는 인증이 필요하므로 필터를 적용
+        if (path.equals("/api/auth/me")) {
+            // 인증 필터 적용
+        } else if (path.startsWith("/api/auth/") || path.startsWith("/oauth2/")) {
             filterChain.doFilter(request, response);
             return;
         }
@@ -45,9 +48,11 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
             String loginId = claims.getSubject();
             String role = (String) claims.get("role");
+            Long userId = claims.get("userId", Long.class);
 
             var authorities = AuthorityUtils.createAuthorityList(role);
-            var authentication = new UsernamePasswordAuthenticationToken(loginId, null, authorities);
+            // Principal로 userId를 설정
+            var authentication = new UsernamePasswordAuthenticationToken(userId.toString(), null, authorities);
             SecurityContextHolder.getContext().setAuthentication(authentication);
 
         } catch (Exception exception) {
