@@ -61,7 +61,10 @@ public class JobPostingRepositoryImpl implements JobPostingRepositoryCustom {
     }
 
     private BooleanExpression keywordContains(String keyword) {
-        return StringUtils.hasText(keyword) ? jobPosting.title.containsIgnoreCase(keyword).or(jobPosting.content.containsIgnoreCase(keyword)) : null;
+        return StringUtils.hasText(keyword) ? 
+            jobPosting.title.containsIgnoreCase(keyword)
+                .or(jobPosting.content.containsIgnoreCase(keyword))
+                .or(jobPosting.companyUser.companyName.containsIgnoreCase(keyword)) : null;
     }
 
     private BooleanExpression locationContains(String location) {
