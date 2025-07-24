@@ -8,6 +8,7 @@ import com.example.devjobs.jobposting.entity.JobPosting;
 import com.example.devjobs.jobposting.repository.JobPostingRepository;
 import com.example.devjobs.user.entity.CompanyUser;
 import com.example.devjobs.user.repository.UserRepository;
+import com.example.devjobs.user.repository.CompanyUserRepository;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -16,7 +17,9 @@ import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -25,6 +28,7 @@ public class JobPostingServiceImpl implements JobPostingService {
 
     private final JobPostingRepository jobPostingRepository;
     private final UserRepository userRepository;
+    private final CompanyUserRepository companyUserRepository;
     private final JobCategoryRepository jobCategoryRepository; // 의존성 추가
 
     @Override
@@ -114,6 +118,18 @@ public class JobPostingServiceImpl implements JobPostingService {
                 request.getRequiredExperienceYears(),
                 jobCategory
         );
+    }
+    
+    @Override
+    @Transactional(readOnly = true)
+    public List<JobPostingResponse.Simple> getCompanyJobPostings(Long companyUserId) {
+        CompanyUser companyUser = companyUserRepository.findById(companyUserId)
+                .orElseThrow(() -> new EntityNotFoundException("Company not found with id: " + companyUserId));
+        
+        List<JobPosting> jobPostings = jobPostingRepository.findByCompanyUser(companyUser);
+        return jobPostings.stream()
+                .map(JobPostingResponse.Simple::from)
+                .collect(Collectors.toList());
     }
 }
 

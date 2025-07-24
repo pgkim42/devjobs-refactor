@@ -7,6 +7,10 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
+import com.example.devjobs.user.entity.CompanyUser;
+import com.example.devjobs.jobcategory.entity.JobCategory;
+import java.util.List;
+import java.time.LocalDate;
 
 @Repository
 public interface JobPostingRepository extends JpaRepository<JobPosting, Long>, JobPostingRepositoryCustom {
@@ -21,4 +25,10 @@ public interface JobPostingRepository extends JpaRepository<JobPosting, Long>, J
     @Query(value = "SELECT jp FROM JobPosting jp JOIN FETCH jp.companyUser",
            countQuery = "SELECT COUNT(jp) FROM JobPosting jp")
     Page<JobPosting> findAllWithCompanyUser(Pageable pageable);
+    
+    List<JobPosting> findByCompanyUser(CompanyUser companyUser);
+    
+    // 홈화면용 추가 메서드
+    long countByDeadlineAfter(LocalDate date);
+    long countByJobCategoryAndDeadlineAfter(JobCategory category, LocalDate date);
 }

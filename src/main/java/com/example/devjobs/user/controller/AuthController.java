@@ -6,6 +6,7 @@ import com.example.devjobs.user.dto.auth.CurrentUserResponse;
 import com.example.devjobs.user.dto.auth.IndividualUserSignUpRequest;
 import com.example.devjobs.user.dto.auth.SignInRequest;
 import com.example.devjobs.user.service.AuthService;
+import com.example.devjobs.user.service.UserDetailsImpl;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -43,8 +44,8 @@ public class AuthController {
     }
 
     @GetMapping("/me")
-    public ResponseEntity<ApiResponse<CurrentUserResponse>> getCurrentUser(@AuthenticationPrincipal String userId) {
-        CurrentUserResponse userInfo = authService.getCurrentUser(Long.parseLong(userId));
+    public ResponseEntity<ApiResponse<CurrentUserResponse>> getCurrentUser(@AuthenticationPrincipal UserDetailsImpl userDetails) {
+        CurrentUserResponse userInfo = authService.getCurrentUser(userDetails.getUserId());
         return ResponseEntity.ok(ApiResponse.success(userInfo));
     }
 }

@@ -15,6 +15,8 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("/api/jobpostings")
 @RequiredArgsConstructor
@@ -34,6 +36,14 @@ public class JobPostingController {
     @GetMapping("/{postId}")
     public ResponseEntity<ApiResponse<JobPostingResponse.Detail>> getJobPosting(@PathVariable Long postId) {
         JobPostingResponse.Detail response = jobPostingService.getJobPosting(postId);
+        return ResponseEntity.ok(ApiResponse.success(response));
+    }
+
+    @GetMapping("/my")
+    @PreAuthorize("hasRole('COMPANY')")
+    public ResponseEntity<ApiResponse<List<JobPostingResponse.Simple>>> getMyJobPostings(
+            @AuthenticationPrincipal UserDetailsImpl userDetails) {
+        List<JobPostingResponse.Simple> response = jobPostingService.getCompanyJobPostings(userDetails.getUserId());
         return ResponseEntity.ok(ApiResponse.success(response));
     }
 

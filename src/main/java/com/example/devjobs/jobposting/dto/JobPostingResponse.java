@@ -49,6 +49,8 @@ public class JobPostingResponse {
         private Integer requiredExperienceYears;
         private LocalDate deadline;
         private String companyName;
+        private Long salary;
+        private String workLocation;
 
         public static Simple from(JobPosting jobPosting) {
             return Simple.builder()
@@ -57,6 +59,8 @@ public class JobPostingResponse {
                     .requiredExperienceYears(jobPosting.getRequiredExperienceYears())
                     .deadline(jobPosting.getDeadline())
                     .companyName(jobPosting.getCompanyUser().getCompanyName())
+                    .salary(jobPosting.getSalary())
+                    .workLocation(jobPosting.getWorkLocation())
                     .build();
         }
     }

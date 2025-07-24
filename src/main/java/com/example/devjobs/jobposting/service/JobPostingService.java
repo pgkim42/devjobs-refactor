@@ -4,6 +4,7 @@ import com.example.devjobs.jobposting.dto.JobPostingRequest;
 import com.example.devjobs.jobposting.dto.JobPostingResponse;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import java.util.List;
 
 public interface JobPostingService {
 
@@ -25,4 +26,6 @@ public interface JobPostingService {
             Long jobCategoryId,
             Pageable pageable
     );
+    
+    List<JobPostingResponse.Simple> getCompanyJobPostings(Long companyUserId);
 }

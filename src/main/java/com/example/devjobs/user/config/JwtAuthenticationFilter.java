@@ -1,6 +1,8 @@
 package com.example.devjobs.user.config;
 
 import com.example.devjobs.user.provider.JwtProvider;
+import com.example.devjobs.user.service.UserDetailsImpl;
+import com.example.devjobs.user.service.UserDetailsServiceImpl;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -19,6 +21,7 @@ import java.io.IOException;
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     private final JwtProvider jwtProvider;
+    private final UserDetailsServiceImpl userDetailsService;
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
@@ -50,9 +53,11 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             String role = (String) claims.get("role");
             Long userId = claims.get("userId", Long.class);
 
-            var authorities = AuthorityUtils.createAuthorityList(role);
-            // Principal로 userId를 설정
-            var authentication = new UsernamePasswordAuthenticationToken(userId.toString(), null, authorities);
+            // UserDetailsImpl 객체 생성
+            UserDetailsImpl userDetails = new UserDetailsImpl(userId, loginId, null, role);
+            
+            // UserDetailsImpl을 Principal로 설정
+            var authentication = new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
             SecurityContextHolder.getContext().setAuthentication(authentication);
 
         } catch (Exception exception) {
