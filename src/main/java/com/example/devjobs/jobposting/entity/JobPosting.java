@@ -1,6 +1,7 @@
 package com.example.devjobs.jobposting.entity;
 
 import com.example.devjobs.common.BaseEntity;
+import com.example.devjobs.jobposting.entity.enums.JobPostingStatus;
 import com.example.devjobs.user.entity.CompanyUser;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -49,6 +50,15 @@ public class JobPosting extends BaseEntity {
     @Column(nullable = false)
     private String workLocation;
 
+    @Column(nullable = false)
+    @Builder.Default
+    private Long viewCount = 0L;
+
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    @Builder.Default
+    private JobPostingStatus status = JobPostingStatus.ACTIVE;
+
     public void update(String title, String content, Long salary, LocalDate deadline, String workLocation, Integer requiredExperienceYears, com.example.devjobs.jobcategory.entity.JobCategory jobCategory) {
         if (title != null) this.title = title;
         if (content != null) this.content = content;
@@ -57,5 +67,17 @@ public class JobPosting extends BaseEntity {
         if (workLocation != null) this.workLocation = workLocation;
         if (requiredExperienceYears != null) this.requiredExperienceYears = requiredExperienceYears;
         if (jobCategory != null) this.jobCategory = jobCategory;
+    }
+
+    public void increaseViewCount() {
+        this.viewCount++;
+    }
+    
+    public void close() {
+        this.status = JobPostingStatus.CLOSED;
+    }
+    
+    public boolean isActive() {
+        return this.status == JobPostingStatus.ACTIVE;
     }
 }

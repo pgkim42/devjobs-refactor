@@ -13,7 +13,7 @@ spring:
   jpa:
     hibernate:
       ddl-auto: update # 애플리케이션 실행 시 엔티티에 맞춰 DB 스키마 변경
-    show-sql: true # SQL 쿼리 로그 출력
+    show-sql: false # SQL 쿼리 로그 출력
     properties:
       hibernate:
         format_sql: true
@@ -25,6 +25,13 @@ spring:
       mode: never
       data-locations: classpath:data.sql
       encoding: UTF-8
+      
+  # Spring Batch 설정
+  batch:
+    jdbc:
+      initialize-schema: always # 배치 메타데이터 테이블 자동 생성
+    job:
+      enabled: false # 애플리케이션 시작 시 자동 실행 방지
 
 # 파일 업로드 경로
 filepath: C:/uploadfile/
@@ -43,4 +50,4 @@ logging:
     root: INFO
 
 jwt:
-  secret: ThisIsAVeryLongSecretKeyForJWTTokenGenerationThatMustBeAtLeast256BitsWhichMeans32BytesOrMoreCharactersToBeSecureEnough12345678901234567890
+  secret: DevJobs123

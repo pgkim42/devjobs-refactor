@@ -16,21 +16,26 @@ public class UserDetailsImpl implements UserDetails {
     private final String username; // loginId
     private final String password;
     private final Collection<? extends GrantedAuthority> authorities;
+    private final User user; // User 엔티티 추가
 
     public UserDetailsImpl(Long userId, String username, String password, String role) {
         this.userId = userId;
         this.username = username;
         this.password = password;
         this.authorities = Collections.singletonList(new SimpleGrantedAuthority(role));
+        this.user = null; // 이전 방식과의 호환성을 위해
+    }
+    
+    public UserDetailsImpl(User user) {
+        this.userId = user.getId();
+        this.username = user.getLoginId();
+        this.password = user.getPassword();
+        this.authorities = Collections.singletonList(new SimpleGrantedAuthority(user.getRole()));
+        this.user = user;
     }
 
     public static UserDetailsImpl from(User user) {
-        return new UserDetailsImpl(
-                user.getId(),
-                user.getLoginId(),
-                user.getPassword(),
-                user.getRole()
-        );
+        return new UserDetailsImpl(user);
     }
 
     @Override

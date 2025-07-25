@@ -24,6 +24,7 @@ public class JobPostingResponse {
         private CompanyInfo companyInfo;
         private LocalDateTime createDate;
         private LocalDateTime updateDate;
+        private Long viewCount;
 
         public static Detail from(JobPosting jobPosting) {
             return Detail.builder()
@@ -37,6 +38,7 @@ public class JobPostingResponse {
                     .companyInfo(CompanyInfo.from(jobPosting.getCompanyUser()))
                     .createDate(jobPosting.getCreateDate())
                     .updateDate(jobPosting.getUpdateDate())
+                    .viewCount(jobPosting.getViewCount())
                     .build();
         }
     }
@@ -51,6 +53,7 @@ public class JobPostingResponse {
         private String companyName;
         private Long salary;
         private String workLocation;
+        private Long viewCount;
 
         public static Simple from(JobPosting jobPosting) {
             return Simple.builder()
@@ -61,6 +64,7 @@ public class JobPostingResponse {
                     .companyName(jobPosting.getCompanyUser().getCompanyName())
                     .salary(jobPosting.getSalary())
                     .workLocation(jobPosting.getWorkLocation())
+                    .viewCount(jobPosting.getViewCount())
                     .build();
         }
     }

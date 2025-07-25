@@ -55,9 +55,12 @@ public class JobPostingServiceImpl implements JobPostingService {
     }
 
     @Override
-    @Transactional(readOnly = true)
+    @Transactional
     public JobPostingResponse.Detail getJobPosting(Long postId) {
         JobPosting jobPosting = findJobPostingById(postId);
+        // 조회수 증가
+        jobPosting.increaseViewCount();
+        jobPostingRepository.save(jobPosting);
         return JobPostingResponse.Detail.from(jobPosting);
     }
 

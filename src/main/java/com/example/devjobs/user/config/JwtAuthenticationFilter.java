@@ -43,18 +43,18 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 return;
             }
 
-            var claims = jwtProvider.validate(token);
-            if (claims == null) {
+            var decodedJWT = jwtProvider.validate(token);
+            if (decodedJWT == null) {
                 filterChain.doFilter(request, response);
                 return;
             }
 
-            String loginId = claims.getSubject();
-            String role = (String) claims.get("role");
-            Long userId = claims.get("userId", Long.class);
+            String loginId = decodedJWT.getSubject();
+            String role = decodedJWT.getClaim("role").asString();
+            Long userId = decodedJWT.getClaim("userId").asLong();
 
-            // UserDetailsImpl 객체 생성
-            UserDetailsImpl userDetails = new UserDetailsImpl(userId, loginId, null, role);
+            // 실제 User 엔티티를 로드
+            UserDetailsImpl userDetails = (UserDetailsImpl) userDetailsService.loadUserByUsername(loginId);
             
             // UserDetailsImpl을 Principal로 설정
             var authentication = new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());

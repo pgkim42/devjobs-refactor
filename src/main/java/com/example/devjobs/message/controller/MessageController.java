@@ -5,6 +5,7 @@ import com.example.devjobs.message.dto.MessageResponse;
 import com.example.devjobs.message.dto.SendMessageRequest;
 import com.example.devjobs.message.service.MessageService;
 import com.example.devjobs.user.entity.User;
+import com.example.devjobs.user.service.UserDetailsImpl;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -27,8 +28,9 @@ public class MessageController {
     // 메시지 보내기
     @PostMapping
     public ApiResponse<MessageResponse> sendMessage(
-            @AuthenticationPrincipal User user,
+            @AuthenticationPrincipal UserDetailsImpl userDetails,
             @Valid @RequestBody SendMessageRequest request) {
+        User user = userDetails.getUser();
         MessageResponse response = messageService.sendMessage(user, request);
         return ApiResponse.success(response);
     }
@@ -36,8 +38,9 @@ public class MessageController {
     // 받은 쪽지함
     @GetMapping("/received")
     public ApiResponse<Page<MessageResponse>> getReceivedMessages(
-            @AuthenticationPrincipal User user,
+            @AuthenticationPrincipal UserDetailsImpl userDetails,
             @PageableDefault(size = 20, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable) {
+        User user = userDetails.getUser();
         Page<MessageResponse> messages = messageService.getReceivedMessages(user, pageable);
         return ApiResponse.success(messages);
     }
@@ -45,15 +48,17 @@ public class MessageController {
     // 보낸 쪽지함
     @GetMapping("/sent")
     public ApiResponse<Page<MessageResponse>> getSentMessages(
-            @AuthenticationPrincipal User user,
+            @AuthenticationPrincipal UserDetailsImpl userDetails,
             @PageableDefault(size = 20, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable) {
+        User user = userDetails.getUser();
         Page<MessageResponse> messages = messageService.getSentMessages(user, pageable);
         return ApiResponse.success(messages);
     }
     
     // 읽지 않은 메시지 개수
     @GetMapping("/unread-count")
-    public ApiResponse<Map<String, Long>> getUnreadCount(@AuthenticationPrincipal User user) {
+    public ApiResponse<Map<String, Long>> getUnreadCount(@AuthenticationPrincipal UserDetailsImpl userDetails) {
+        User user = userDetails.getUser();
         Long count = messageService.getUnreadCount(user);
         Map<String, Long> response = new HashMap<>();
         response.put("count", count);
@@ -63,8 +68,9 @@ public class MessageController {
     // 메시지 상세 조회 (자동 읽음 처리)
     @GetMapping("/{messageId}")
     public ApiResponse<MessageResponse> getMessage(
-            @AuthenticationPrincipal User user,
+            @AuthenticationPrincipal UserDetailsImpl userDetails,
             @PathVariable Long messageId) {
+        User user = userDetails.getUser();
         MessageResponse message = messageService.getMessage(user, messageId);
         return ApiResponse.success(message);
     }
@@ -72,8 +78,9 @@ public class MessageController {
     // 읽음 처리
     @PatchMapping("/{messageId}/read")
     public ApiResponse<Void> markAsRead(
-            @AuthenticationPrincipal User user,
+            @AuthenticationPrincipal UserDetailsImpl userDetails,
             @PathVariable Long messageId) {
+        User user = userDetails.getUser();
         messageService.markAsRead(user, messageId);
         return ApiResponse.success();
     }
