@@ -1,89 +1,56 @@
-# DevJobs Backend API
+# DevJobs Backend
 
-개발자 채용 플랫폼 백엔드 API 서버
+Spring Boot 기반 채용 플랫폼 REST API
 
 ## 기술 스택
 
 - Java 17
-- Spring Boot 3.x
+- Spring Boot 3.4.0
 - Spring Security + JWT
-- JPA/Hibernate
+- Spring Data JPA
+- Spring Batch
+- QueryDSL
 - MariaDB
-- Gradle
+- SpringDoc OpenAPI 2.7.0
 
-## 실행 방법
+## 실행
 
 ```bash
-# 데이터베이스 설정 (application.yml)
-# MariaDB 실행 후 devjobs 데이터베이스 생성 필요
+# 데이터베이스 실행 (docker-compose)
+docker-compose up -d
 
-# 프로젝트 실행
+# 애플리케이션 실행
 ./gradlew bootRun
-
-# 빌드
-./gradlew build
 ```
 
-## API 엔드포인트
+## API 문서
 
-### 인증 (`/api/auth`)
-- `POST /api/auth/signin` - 로그인
-- `POST /api/auth/signup/individual` - 개인 회원가입
-- `POST /api/auth/signup/company` - 기업 회원가입
-- `GET /api/auth/me` - 현재 사용자 정보
+http://localhost:8080/swagger-ui.html
 
-### 채용공고 (`/api/jobpostings`)
-- `GET /api/jobpostings` - 채용공고 목록 (페이징)
-- `GET /api/jobpostings/{id}` - 채용공고 상세
-- `POST /api/jobpostings` - 채용공고 등록 (기업)
-- `PATCH /api/jobpostings/{id}` - 채용공고 수정 (기업)
-- `DELETE /api/jobpostings/{id}` - 채용공고 삭제 (기업)
-- `GET /api/jobpostings/my` - 내 회사 채용공고 목록 (기업)
+## 주요 기능
 
-### 지원 (`/api/applications`)
-- `POST /api/applications` - 지원하기 (개인)
-- `GET /api/applications/my` - 내 지원 목록 (개인)
-- `DELETE /api/applications/{id}` - 지원 취소 (개인)
-- `GET /api/applications/job/{jobPostingId}` - 채용공고별 지원자 목록 (기업)
-- `PATCH /api/applications/{id}/status` - 지원 상태 변경 (기업)
+### 인증/인가
+- JWT 기반 인증
+- 역할별 권한 관리 (INDIVIDUAL, COMPANY)
 
-### 프로필 (`/api/profiles`)
-- `GET /api/profiles/individual` - 개인 프로필 조회
-- `PUT /api/profiles/individual` - 개인 프로필 수정
-- `POST /api/profiles/individual/resume` - 이력서 등록
-- `GET /api/profiles/company` - 기업 프로필 조회
-- `PUT /api/profiles/company` - 기업 프로필 수정
+### 채용공고
+- CRUD 및 검색/필터링
+- 자동 마감 처리 (Spring Batch)
+- 상태 관리 (ACTIVE, CLOSED, CANCELLED, FILLED)
 
-### 카테고리 (`/api/job-categories`)
-- `GET /api/job-categories` - 직무 카테고리 목록
+### 지원 관리
+- 지원/취소
+- 상태 변경 (APPLIED → PASSED → INTERVIEW → ACCEPTED/REJECTED)
 
-### 홈화면 (`/api/home`)
-- `GET /api/home/dashboard` - 홈 대시보드 데이터
+### 프로필
+- 개인: 경력, 학력, 스킬, 어학, 자격증
+- 기업: 회사 정보, 로고
 
-## 응답 형식
+### 부가 기능
+- 북마크
+- 쪽지
+- 파일 업로드 (이력서, 회사 로고)
 
-모든 API 응답은 다음 형식으로 래핑됩니다:
+## 환경 설정
 
-```json
-{
-  "message": "Success",
-  "data": { ... },
-  "statusCode": 200
-}
-```
-
-## 인증
-
-JWT 토큰 기반 인증을 사용합니다.
-
-```
-Authorization: Bearer {token}
-```
-
-## 지원 상태값
-
-- `APPLIED` - 지원 완료
-- `PASSED` - 서류 통과
-- `INTERVIEW` - 면접
-- `ACCEPTED` - 최종 합격
-- `REJECTED` - 불합격
+`src/main/resources/application.yml` 참고
