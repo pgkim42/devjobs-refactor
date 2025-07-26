@@ -9,6 +9,8 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 import com.example.devjobs.user.entity.CompanyUser;
 import com.example.devjobs.jobcategory.entity.JobCategory;
+import com.example.devjobs.jobposting.entity.enums.JobPostingStatus;
+import org.springframework.data.repository.query.Param;
 import java.util.List;
 import java.time.LocalDate;
 
@@ -31,4 +33,30 @@ public interface JobPostingRepository extends JpaRepository<JobPosting, Long>, J
     // 홈화면용 추가 메서드
     long countByDeadlineAfter(LocalDate date);
     long countByJobCategoryAndDeadlineAfter(JobCategory category, LocalDate date);
+    
+    // 관리자용 추가 메서드
+    int countByCompanyUser(CompanyUser companyUser);
+    
+    // 관리자 검색 메서드
+    @Query(value = "SELECT jp FROM JobPosting jp JOIN FETCH jp.companyUser WHERE " +
+           "(LOWER(jp.title) LIKE LOWER(CONCAT('%', :search, '%')) OR " +
+           "LOWER(jp.companyUser.companyName) LIKE LOWER(CONCAT('%', :search, '%')))",
+           countQuery = "SELECT COUNT(jp) FROM JobPosting jp WHERE " +
+           "(LOWER(jp.title) LIKE LOWER(CONCAT('%', :search, '%')) OR " +
+           "LOWER(jp.companyUser.companyName) LIKE LOWER(CONCAT('%', :search, '%')))")
+    Page<JobPosting> findBySearch(@Param("search") String search, Pageable pageable);
+    
+    @Query(value = "SELECT jp FROM JobPosting jp JOIN FETCH jp.companyUser WHERE jp.status = :status",
+           countQuery = "SELECT COUNT(jp) FROM JobPosting jp WHERE jp.status = :status")
+    Page<JobPosting> findByStatus(@Param("status") JobPostingStatus status, Pageable pageable);
+    
+    @Query(value = "SELECT jp FROM JobPosting jp JOIN FETCH jp.companyUser WHERE " +
+           "(LOWER(jp.title) LIKE LOWER(CONCAT('%', :search, '%')) OR " +
+           "LOWER(jp.companyUser.companyName) LIKE LOWER(CONCAT('%', :search, '%'))) AND " +
+           "jp.status = :status",
+           countQuery = "SELECT COUNT(jp) FROM JobPosting jp WHERE " +
+           "(LOWER(jp.title) LIKE LOWER(CONCAT('%', :search, '%')) OR " +
+           "LOWER(jp.companyUser.companyName) LIKE LOWER(CONCAT('%', :search, '%'))) AND " +
+           "jp.status = :status")
+    Page<JobPosting> findBySearchAndStatus(@Param("search") String search, @Param("status") JobPostingStatus status, Pageable pageable);
 }

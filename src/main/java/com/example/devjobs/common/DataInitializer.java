@@ -6,6 +6,7 @@ import com.example.devjobs.jobposting.entity.JobPosting;
 import com.example.devjobs.jobposting.repository.JobPostingRepository;
 import com.example.devjobs.user.entity.CompanyUser;
 import com.example.devjobs.user.entity.IndividualUser;
+import com.example.devjobs.user.entity.AdminUser;
 import com.example.devjobs.user.entity.enums.WorkStatus;
 import com.example.devjobs.user.repository.UserRepository;
 import com.example.devjobs.application.repository.ApplicationRepository;
@@ -83,13 +84,16 @@ public class DataInitializer implements CommandLineRunner {
         // 1. 직무 카테고리 생성
         createJobCategories();
 
-        // 2. 개인 회원 생성
+        // 2. 관리자 계정 생성
+        createAdminUser();
+
+        // 3. 개인 회원 생성
         createIndividualUsers();
 
-        // 3. 기업 회원 생성
+        // 4. 기업 회원 생성
         createCompanyUsers();
 
-        // 4. 채용공고 생성
+        // 5. 채용공고 생성
         createJobPostings();
 
         log.info("=== 샘플 데이터 초기화 완료 ===");
@@ -97,6 +101,10 @@ public class DataInitializer implements CommandLineRunner {
         // 생성된 계정 정보 출력
         log.info("========================================");
         log.info("생성된 샘플 계정 정보:");
+        log.info("========================================");
+        log.info("【관리자】");
+        log.info("- ID: admin");
+        log.info("- PW: admin!@!@qq");
         log.info("========================================");
         log.info("【개인 회원】");
         log.info("- ID: user1 ~ user10");
@@ -131,6 +139,23 @@ public class DataInitializer implements CommandLineRunner {
         }
         
         log.info("직무 카테고리 {} 개 생성 완료", categories.length);
+    }
+    
+    private void createAdminUser() {
+        log.info("관리자 계정 생성 중...");
+        
+        AdminUser admin = AdminUser.builder()
+                .loginId("admin")
+                .password(passwordEncoder.encode("admin!@!@qq"))
+                .name("시스템관리자")
+                .email("admin@devjobs.com")
+                .role("ROLE_ADMIN")
+                .department("시스템관리팀")
+                .adminLevel(1)
+                .build();
+                
+        userRepository.save(admin);
+        log.info("관리자 계정 생성 완료: admin / admin!@!@qq");
     }
 
     private void createIndividualUsers() {
