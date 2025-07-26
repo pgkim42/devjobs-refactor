@@ -43,11 +43,7 @@ public class HomeServiceImpl implements HomeService {
         // 인기 카테고리 조회 (채용공고가 많은 순서대로)
         List<CategoryWithCountDto> popularCategories = getPopularCategories();
         
-        return HomeResponse.builder()
-                .statistics(statistics)
-                .recentJobs(recentJobs)
-                .popularCategories(popularCategories)
-                .build();
+        return new HomeResponse(statistics, recentJobs, popularCategories);
     }
     
     private HomeStatisticsDto getStatistics() {
@@ -56,12 +52,7 @@ public class HomeServiceImpl implements HomeService {
         long totalCompanies = companyUserRepository.count();
         long totalIndividuals = individualUserRepository.count();
         
-        return HomeStatisticsDto.builder()
-                .totalJobs(totalJobs)
-                .activeJobs(activeJobs)
-                .totalCompanies(totalCompanies)
-                .totalUsers(totalIndividuals + totalCompanies)
-                .build();
+        return new HomeStatisticsDto(totalJobs, activeJobs, totalCompanies, totalIndividuals + totalCompanies);
     }
     
     private List<SimpleJobPostingDto> getRecentJobs() {
@@ -93,13 +84,9 @@ public class HomeServiceImpl implements HomeService {
                 .map(category -> {
                     long jobCount = jobPostingRepository.countByJobCategoryAndDeadlineAfter(
                             category, LocalDate.now());
-                    return CategoryWithCountDto.builder()
-                            .id(category.getId())
-                            .categoryName(category.getCategoryName())
-                            .jobCount(jobCount)
-                            .build();
+                    return new CategoryWithCountDto(category.getId(), category.getCategoryName(), jobCount);
                 })
-                .sorted((a, b) -> Long.compare(b.getJobCount(), a.getJobCount()))
+                .sorted((a, b) -> Long.compare(b.jobCount(), a.jobCount()))
                 .limit(8)
                 .collect(Collectors.toList());
     }

@@ -1,11 +1,13 @@
 package com.example.devjobs.user.dto.auth;
 
 import jakarta.validation.constraints.NotBlank;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
 
 @Getter
 @Setter
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class SignInRequest {
 
     @NotBlank

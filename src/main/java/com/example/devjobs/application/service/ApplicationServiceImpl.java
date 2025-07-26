@@ -34,7 +34,7 @@ public class ApplicationServiceImpl implements ApplicationService {
         IndividualUser individualUser = individualUserRepository.findById(userId)
                 .orElseThrow(() -> new EntityNotFoundException("사용자를 찾을 수 없습니다."));
 
-        JobPosting jobPosting = jobPostingRepository.findById(requestDTO.getJobPostingId())
+        JobPosting jobPosting = jobPostingRepository.findById(requestDTO.jobPostingId())
                 .orElseThrow(() -> new EntityNotFoundException("채용 공고를 찾을 수 없습니다."));
 
         if (applicationRepository.findByJobPostingAndIndividualUser(jobPosting, individualUser).isPresent()) {
@@ -87,7 +87,7 @@ public class ApplicationServiceImpl implements ApplicationService {
         Application application = applicationRepository.findById(applicationId)
                 .orElseThrow(() -> new EntityNotFoundException("지원 내역을 찾을 수 없습니다."));
         // 인가 확인은 이제 컨트롤러의 @PreAuthorize에서 처리됩니다.
-        application.setStatus(requestDTO.getStatus());
+        application.setStatus(requestDTO.status());
         applicationRepository.save(application);
     }
 
